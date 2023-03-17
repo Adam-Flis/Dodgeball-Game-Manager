@@ -27,37 +27,65 @@ const char index_html[] PROGMEM = R"rawliteral(
         scale: 2;
         margin-top: 40px;
     }
-    h4{
+    .slidertxt {
         margin-top: 40px;
     }
+    .timer {
+			height: 150px;
+			width: 150px;
+			border: 3px solid black;
+			margin: 0px auto;
+      margin-bottom: -15px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+      text-align: center;
+		}
+    .timer p {
+			margin: 0;      
+			display: flex;
+			align-items: center;
+			justify-content: center;
+      font-size: 120px;
+      color: #ff0000;
+		}
+
   </style>
 </head>
 
 <body>
-  <h2>NCDA Shotclock</h2>
-  <button id = "reset" onclick="reset()">RESET</button>
-  <br>
-  <button id = "revert" onclick="revert()">REVERT</button>
+  <h2 style="margin-bottom: -10px">NCDA Shotclock</h2>
   <h4>
-  <label style="margin-bottom: 100px">Clock Length:</label>
-  <div style="display: flex; flex-direction: column; align-items: center;">
+  <label style="font-size: 20px;">Timer Value:</label>
+  <div class="timer">
+    <p id="timerText">10</p>
+  </div>  
+  </h4>
+  <button id="reset" onclick="update(2, this)">RESET</button>
+  <br>
+  <button id="revert" onclick="update(3, this)">REVERT</button>
+  <br>
+  <button id="pause" onclick="update(6, this)">PAUSE</button>
+  <h4 class="slidertxt">
+  <label>Clock Length:</label>
+    <div style="display: flex; flex-direction: column; align-items: center;">
       <div style="display: flex; align-items: center;">
         <span style="margin-right: 10px;">10</span>
         <label class="switch">
-          <input type="checkbox" onchange="toggleLength(this)">
+          <input type="checkbox" onchange="update(0, this)">
           <span class="slider"></span>
         </label>
         <span style="margin-left: 10px;">15</span>
       </div>
     </div>
-    </h4>
-    <h4>    
-    <label>Count Direction:</label>
+  </h4>
+  <h4 class="slidertxt">    
+  <label>Count Direction:</label>
     <div style="display: flex; flex-direction: column; align-items: center;">
-        <div style="display: flex; align-items: center;">
+      <div style="display: flex; align-items: center;">
         <span style="margin-right: 10px;">Up</span>
             <label class="switch">
-                <input type="checkbox" onchange="toggleDir(this)">
+                <input type="checkbox" onchange="update(4, this)">
                 <span class="slider"></span>
             </label>
             <span style="margin-left: 10px;">Dn</span>
@@ -66,45 +94,24 @@ const char index_html[] PROGMEM = R"rawliteral(
     </h4>
     <h4>
       <label>Clock Color:</label>
-      <input type="color" onchange="updateColor(this)">
+      <input type="color" value="#ff0000" onchange="updateColor(this)">
     </h4>
 <script>
 
-function reset() {
+function update(num, element) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/update?state=2", true);    
+    if (element.checked) {
+      num++;
+    }
+    xhr.open("GET", `/update?state=${num}`, true);    
     xhr.send();
-}
-
-function revert() {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/update?state=3", true);    
-    xhr.send();
-}
-
-function toggleLength(element) {
-  var xhr = new XMLHttpRequest();
-  if(element.checked) { 
-    xhr.open("GET", "/update?state=1", true); 
-  } else { 
-    xhr.open("GET", "/update?state=0", true); 
-  }
-  xhr.send();
-}
-
-function toggleDir(element) {
-  var xhr = new XMLHttpRequest();
-  if(element.checked) { 
-    xhr.open("GET", "/update?state=4", true); 
-  }  else { 
-    xhr.open("GET", "/update?state=5", true); 
-  }
-  xhr.send();
 }
 
 function updateColor(element) {
   var xhr = new XMLHttpRequest();
   const color = element.value;
+  const timer = document.getElementById("timerText");
+  timer.style.color = color;
   const red = parseInt(color.substr(1, 2), 16);
   const green = parseInt(color.substr(3, 2), 16);
   const blue = parseInt(color.substr(5, 2), 16);
@@ -113,22 +120,21 @@ function updateColor(element) {
   xhr.send();
 }
 
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("timerText").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/time", true);
+  xhttp.send();
+}, 100);
+
 </script>
 </body>
 </html>
 )rawliteral";
-
-// Replaces placeholder with button section in your web page
-String processor(const String& var){
-  // Serial.println(var);
-  // if(var == "SLIDERPLACEHOLDER"){
-  //   String buttons ="";
-  //   String outputStateValue = outputState();
-  //   buttons+= "<h4>Output - GPIO 2 - State <span id=\"outputState\"></span></h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"output\" " + outputStateValue + "><span class=\"slider\"></span></label>";
-  //   return buttons;
-  // }
-  return String();
-}
 
 
 void wifi(){
@@ -146,7 +152,7 @@ void wifi(){
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", index_html, processor);
+    request->send_P(200, "text/html", index_html);
   });
 
   // Send a GET request to <ESP_IP>/update?state=<inputMessage>
@@ -163,6 +169,11 @@ void wifi(){
       updateColor(red, green, blue);
     }
     request->send(200, "text/plain", "OK");
+  });
+
+  // Send a GET request to <ESP_IP>/time
+  server.on("/time", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", getTimeValue('H'));
   });
 
   // Start server

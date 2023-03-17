@@ -6,7 +6,7 @@ void configure(int pin, int numPixels, struct side *side) {
   side->disp.numPixels = numPixels;
   side->disp.pixels.updateLength(numPixels);  
   side->disp.pixels.begin();
-  setColor(&(side->disp), random(0, 255), random(0, 255), random(0, 255));
+  setColor(&(side->disp), 255, 0, 0);
 }
 
 void displayNumber(int num, int segment, struct display *disp) {

@@ -21,7 +21,8 @@ struct display {
 typedef struct side {
   int cnt = 0;
   int preCnt = 0;
-  int cntMax = 10;
+  int resetMax = 10;
+  int curMax = 10;
   int playerCnt = 0;
   int timeoutCnt = 0;
   bool paused = false;
@@ -51,9 +52,11 @@ void setColor(struct display *disp, int red, int green, int blue);
 void blackout(struct display *disp);
 
 void wifi();
-void count(int sec, struct side *side);
+int getValue(int num, struct side *side);
+void count(int num, struct side *side);
 
 void update(int num);
 void updateColor(int red, int green, int blue);
+String getTimeValue(char side);
 
 #endif
