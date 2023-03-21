@@ -12,7 +12,7 @@ void setup() {
   Serial.begin(115200);
   wifi();
   delay(100);
-  configure(12, 42, &Home);
+  configure(25, 42, &Home);
   delay(200);
   Serial.println("Setup Finished");
   timer = millis();
@@ -20,7 +20,7 @@ void setup() {
 
 void loop() {
 
-  if (millis() - timer >= 1000) { // 1 second has passed
+  if (!paused && millis() - timer >= 1000) { // 1 second has passed
     timer = millis();
 
     if (Home.cnt == 0) {
@@ -43,20 +43,15 @@ void loop() {
     // Flash lights on violation
     if (blink) {
       blackout(&(Home.disp));
-    }
-    
-  } 
-  // else {
-  //   count(Home.cnt, &Home); 
-  //   int delta = millis() - timer;
-  //   while (paused) {
-  //     timer = millis() + delta;
-  //     delay(10);
-  //   }    
-  // }
+    }    
+  } else if (paused) {
+    count(Home.cnt, &Home); 
+    int delta = millis() - timer;
+    timer = millis() + delta;
+  }
 
   delay(10);  
-}
+} 
 
 void update(int num) {
     switch (num) {
@@ -95,8 +90,8 @@ void update(int num) {
       Home.countUp = false;
       count(Home.cnt, &Home);
       break;
-    case 6:
-      //paused = !paused;
+    case 6:// Toggle pause
+      paused = !paused;
     default:
       break;
     }

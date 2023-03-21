@@ -2,7 +2,7 @@
 
 // Replace with your network credentials
 const char* ssid = "Dodgeball";
-const char* password = "adamflis";
+const char* password = "OSUBallz";
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -138,11 +138,9 @@ setInterval(function ( ) {
 
 
 void wifi(){
-  // Serial port for debugging purposes
-  Serial.begin(115200);
   
   // Connect to Wi-Fi
-  WiFi.softAP(ssid, password);
+  WiFi.softAP(ssid, password, 1, 0, 4);
   IPAddress IP = WiFi.softAPIP();
   Serial.println(IP);
   server.begin();
@@ -175,6 +173,7 @@ void wifi(){
   server.on("/time", HTTP_GET, [] (AsyncWebServerRequest *request) {
     request->send(200, "text/plain", getTimeValue('H'));
   });
+  
 
   // Start server
   server.begin();
