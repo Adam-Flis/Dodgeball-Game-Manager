@@ -8,6 +8,7 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
+#include <ArduinoJson.h> 
 
 #include "side.hpp"
 
@@ -27,6 +28,6 @@ extern long numbers[] = {
 
 void startServer();
 void updateSideServer(String str, String side);
-String updateSideClient(String side);
+String updateSideClient();
 
 #endif

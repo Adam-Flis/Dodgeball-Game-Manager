@@ -9,7 +9,8 @@ const char* password = "OSUBallz";
 AsyncWebServer server(80);
 
 const char index_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML><html>
+<!DOCTYPE HTML>
+<html>
 <head>
   <title>ESP Web Server</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -64,7 +65,7 @@ const char index_html[] PROGMEM = R"rawliteral(
   </h4>
   <button id="reset" onclick="update('reset', this)">RESET</button>
   <br>
-  <button id="undo" onclick="update('undo', this)">UNDO RESET</button>
+  <button id="undo" onclick="update('undo', this)">UNDO</button>
   <br>
   <button id="pause" onclick="update('pause', this)">PAUSE</button>
   <h4 class="slidertxt">
@@ -73,7 +74,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       <div style="display: flex; align-items: center;">
         <span style="margin-right: 10px;">10</span>
         <label class="switch">
-          <input type="checkbox" onchange="update('toggleDur', this)">
+          <input type="checkbox" id="length" onchange="update('toggleDur', this)">
           <span class="slider"></span>
         </label>
         <span style="margin-left: 10px;">15</span>
@@ -86,7 +87,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       <div style="display: flex; align-items: center;">
         <span style="margin-right: 10px;">Up</span>
             <label class="switch">
-                <input type="checkbox" onchange="update('toggleDir', this)">
+                <input type="checkbox" id="direction" onchange="update('toggleDir', this)">
                 <span class="slider"></span>
             </label>
             <span style="margin-left: 10px;">Dn</span>
@@ -95,31 +96,76 @@ const char index_html[] PROGMEM = R"rawliteral(
     </h4>
     <h4>
       <label>Clock Color:</label>
-      <input type="color" value="#ff0000" onchange="update('color', this)">
+      <input type="color" id="colorPicker" value="#ff0000" onchange="update('color', this)">
     </h4>
 <script>
 
+// Update the server when an action occurs 
 function update(str, element) {    
     if (str === 'color') {
-      const color = element.value;      
-      str += color.substring(1);
-      timer = document.getElementById("timerText");
-      timer.style.color = color;
+
+      // Convert hex to red, green, blue values
+      const red = parseInt(element.value.substr(1, 2), 16);
+      const green = parseInt(element.value.substr(3, 2), 16);
+      const blue = parseInt(element.value.substr(5, 2), 16);
+
+      // Build string
+      str += `r=${red}g=${green}b=${blue}`;
     }
-    console.log(str);
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", `/update?state=${str}`, true);    
+    xhr.open("GET", `/updateServer?state=${str}`, true);    
     xhr.send();
 }
 
+const rgbToHex = (color) => {
+  const r = color[0].toString(16).padStart(2, "0");
+  const g = color[1].toString(16).padStart(2, "0");
+  const b = color[2].toString(16).padStart(2, "0");
+  return `#${r}${g}${b}`;
+};
+
+var lastVibrateTime = 0;
 setInterval(function() {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("timerText").innerHTML = this.responseText;
+      var response = JSON.parse(this.responseText);
+      var home = response.home;
+
+      // Update page elements
+      document.getElementById("timerText").innerHTML = home.count;
+      document.getElementById("length").checked = home._15sec;
+      document.getElementById("direction").checked = home.countDown;
+      var pauseBtn = document.getElementById("pause");
+      if (home.paused) {
+        pauseBtn.innerHTML = "RESUME";
+      } else {
+        pauseBtn.innerHTML = "PAUSE";
+      }
+
+      // Update color
+      timerElement = document.getElementById("timerText");
+      colorElement = document.getElementById("colorPicker");
+
+      var color = home.color;
+      const rgb = [color.red, color.green, color.blue];
+      const hex = rgbToHex(rgb);
+
+      timerElement.style.color = hex;
+      colorElement.value = hex;
+
+      // Vibrate
+      if ("vibrate" in navigator) {
+        // Vibration API supported
+        if (home.violation && (Date.now() - lastVibrateTime) >= 1000) { // Vibrate every second if violation occurred 
+          navigator.vibrate(500);
+          lastVibrateTime = Date.now();
+        }        
+      }
     }
   };
-  xhttp.open("GET", "/time", true);
+
+  xhttp.open("GET", "/updateClient", true);
   xhttp.send();
 }, 100);
 
@@ -145,8 +191,8 @@ void startServer(){
     request->send_P(200, "text/html", index_html);
   });
 
-  // Send a GET request to <ESP_IP>/update?
-  server.on("/update", HTTP_GET, [] (AsyncWebServerRequest *request) {
+  // Send a GET request to <ESP_IP>/updateServer?
+  server.on("/updateServer", HTTP_GET, [] (AsyncWebServerRequest *request) {
     String msg;
     String side = "Home"; // Make this get a stored value based on page  
     // GET input value on <ESP_IP>/update?
@@ -158,8 +204,8 @@ void startServer(){
   });
 
   // Send a GET request to <ESP_IP>/time
-  server.on("/time", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", updateSideClient("Home"));
+  server.on("/updateClient", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", updateSideClient());
   });  
 
   // Start server

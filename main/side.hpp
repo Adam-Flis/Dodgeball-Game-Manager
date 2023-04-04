@@ -17,11 +17,17 @@ class Side {
         bool paused = true,
             blink = false,
             countUp = true,
-            _10sec = true;
+            _10sec = true,
+            violation = false;
         Adafruit_NeoPixel pixels = Adafruit_NeoPixel(42, NULL, NEO_GRB + NEO_KHZ800);
     public:
         void configure(int pin);
+
         void setColor(int red, int green, int blue);
+        int getRed();
+        int getGreen();
+        int getBlue();
+
         void setDisplay(int num, int segment);
         void displayNumber(int num);
         void off();
@@ -33,8 +39,14 @@ class Side {
         void reset();
         void undo();
 
+        void setViolation(bool state);
+        bool getViolation();
+
         void toggleDirection();
+        bool getDirection();
+
         void toggleDuration();
+        bool getDuration();
         
         unsigned long getTime();
         void setTime(unsigned long val);
