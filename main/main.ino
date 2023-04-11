@@ -9,7 +9,8 @@ void setup() {
   delay(100);
   startServer();
   delay(100);
-  home.configure(25);
+  home.configure(18);
+  away.configure(25);
   delay(100);
   Serial.println("Setup Finished");
 }
@@ -31,40 +32,79 @@ void loop() {
         }   
     }
 
+    // Away shot clock
+    if (!away.getPaused()) { // Check if clock is not paused
+        if (millis() - away.getTime() >= 1000) { // 1 second has passed
+            away.setTime(millis());
+            away.decrementCounts();
+            away.displayNumber(away.getCount());
+            if (away.getCount() == 0) {
+                away.toggleBlink();           
+            }  
+        }
+        if (away.getCount() == 0) { // Shot clock violation has occurred
+            away.setViolation(true);
+        }
+    }
+
     delay(10);
 }
 
 // Update function that gets called from server
 void updateSideServer(String str, String side) {
-    if (side == "Home") {
+    if (side == "home") {
         home.updateState(str);
-    } else if (side == "Away") {
+    } else if (side == "away") {
         away.updateState(str);
     }
+}
+
+// Update min/max function that gets called from server
+void updateMinMax(int min, int max) {
+    setMin(min);
+    setMax(max);
+    home.updateResetMax();
+    away.updateResetMax();
 }
 
 // Update function that updates the webpage
 String updateSideClient() {
 
     // Create JSON object
-    DynamicJsonDocument doc(256);
+    DynamicJsonDocument doc(512);
+
+    // Both sides objects
+    JsonObject bothObj = doc.createNestedObject("both");
+    bothObj["max"] = getMax();
+    bothObj["min"] = getMin();
+
+    // Home elements
     JsonObject homeObj = doc.createNestedObject("home");
     homeObj["count"] = home.convertNumber(home.getCount());
     homeObj["paused"] = home.getPaused();
     homeObj["violation"] = home.getViolation();
     homeObj["countDown"] = !home.getDirection();
-    homeObj["_15sec"] = !home.getDuration();
+    homeObj["isMax"] = !home.getDuration();
     
-    JsonObject colorObj = homeObj.createNestedObject("color");
-    colorObj["red"] = home.getRed();
-    colorObj["green"] = home.getGreen();
-    colorObj["blue"] = home.getBlue();
+    // Color elements
+    JsonObject homeColorObj = homeObj.createNestedObject("color");
+    homeColorObj["red"] = home.getRed();
+    homeColorObj["green"] = home.getGreen();
+    homeColorObj["blue"] = home.getBlue();
 
-    // JsonObject awayObj = doc.createNestedObject("away");
-    // awayObj["count"] = away.getCount();
-    // awayObj["paused"] = away.isPaused();
-    // awayObj["countup"] = away.isCountUp();
-    // awayObj["_10sec"] = away.is10Sec();
+    // Away elements
+    JsonObject awayObj = doc.createNestedObject("away");
+    awayObj["count"] = away.convertNumber(away.getCount());
+    awayObj["paused"] = away.getPaused();
+    awayObj["violation"] = away.getViolation();
+    awayObj["countDown"] = !away.getDirection();
+    awayObj["isMax"] = !away.getDuration();    
+    
+    // Color elements
+    JsonObject awayColorObj = awayObj.createNestedObject("color");
+    awayColorObj["red"] = away.getRed();
+    awayColorObj["green"] = away.getGreen();
+    awayColorObj["blue"] = away.getBlue();
 
     // Convert JSON object to string
     String ret;

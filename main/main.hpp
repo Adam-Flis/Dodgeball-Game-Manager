@@ -28,6 +28,10 @@ extern long numbers[] = {
 
 void startServer();
 void updateSideServer(String str, String side);
+void updateMinMax(int min, int max);
 String updateSideClient();
+
+extern const char index_html[];
+extern const char side_html[];
 
 #endif

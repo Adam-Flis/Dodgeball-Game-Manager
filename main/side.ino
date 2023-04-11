@@ -1,5 +1,25 @@
 #include "main.hpp"
 
+int minTime = 10, maxTime = 15;
+
+// Min functions
+void setMin(int val) {
+    minTime = val;
+}
+
+int getMin() {
+    return minTime;
+}
+
+// Max functions
+void setMax(int val) {
+    maxTime = val;
+}
+
+int getMax() {
+    return maxTime;
+}
+
 void Side::configure(int pin) {
     pixels.setPin(pin);
     pixels.begin();            
@@ -120,6 +140,11 @@ bool Side::getViolation() {
 }
 
 // Count up or down functions
+void Side::updateResetMax() {
+    if (isMin) resetMax = getMin();
+    else resetMax = getMax();
+}
+
 void Side::toggleDirection() {
     countUp = !countUp;
     displayNumber(cnt);
@@ -129,15 +154,13 @@ bool Side::getDirection() {
     return countUp;
 }
 
-// 10/15 seconds clock functions
 void Side::toggleDuration() {
-    _10sec = !_10sec;
-    if (_10sec) resetMax = 10;
-    else resetMax = 15;
+    isMin = !isMin;
+    updateResetMax();
 }
 
 bool Side::getDuration() {
-    return _10sec;
+    return isMin;
 }
 
 // Paused functions
@@ -172,7 +195,7 @@ void Side::setTime(unsigned long val) {
 
 // Update variable states depending on what the server sends
 void Side::updateState(String str) {
-    if (str == "toggleDur") toggleDuration(); // Toggle 10/15 sec
+    if (str == "toggleDur") toggleDuration(); // Toggle min/max sec
     else if (str == "reset") reset(); // Reset
     else if (str == "undo") undo(); // Undo reset call
     else if(str == "toggleDir") toggleDirection(); // Toggle count up or down

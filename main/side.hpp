@@ -2,7 +2,6 @@
 
 #ifndef SIDE_HPP
 #define SIDE_HPP
-
 class Side {
     private:
         int cnt = 0,
@@ -17,7 +16,7 @@ class Side {
         bool paused = true,
             blink = false,
             countUp = true,
-            _10sec = true,
+            isMin = true,
             violation = false;
         Adafruit_NeoPixel pixels = Adafruit_NeoPixel(42, NULL, NEO_GRB + NEO_KHZ800);
     public:
@@ -42,6 +41,7 @@ class Side {
         void setViolation(bool state);
         bool getViolation();
 
+        void updateResetMax();
         void toggleDirection();
         bool getDirection();
 
@@ -58,5 +58,10 @@ class Side {
 
         void updateState(String str);
 };
+
+void setMin(int val);
+void setMax(int val);
+int getMin();
+int getMax();
 
 #endif
