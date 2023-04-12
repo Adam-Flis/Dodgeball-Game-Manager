@@ -1,39 +1,50 @@
 #include "main.hpp"
 
 // Replace with your network credentials
-const char* ssid = "Dodgeball";
-const char* password = "OSUBallz";
+const char* ssid = "NCDAShotclock";
+const char* password = "Dodgeball";
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-void startServer(){
+void startServer(){  
   
   // Connect to Wi-Fi
-  WiFi.softAP(ssid, password, 1, 0, 4);
+  WiFi.softAP(ssid, password, 1, 0, 4);  
   IPAddress IP = WiFi.softAPIP();
-  Serial.println(IP); // IP = 192.168.4.1  
-  server.begin();
 
-  // Print ESP Local IP Address
-  Serial.println(WiFi.localIP());
+  server.begin(); // Start server
+  Serial.println("Server started");
 
-  // Route for index
+  Serial.println("Soft APIP: " + IP.toString()); // APIP = 192.168.4.1 
+  Serial.println("Local IP: " + WiFi.localIP().toString()); // IP = 0.0.0.0 
+
+  mountSPIFFS();
+  //byte audioBuffer[1024];
+  //loadWAVFile("/audio.wav", audioBuffer, sizeof(audioBuffer));
+
+  // Handle requests for index html
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html);
   });
 
-  // Route for home side
+  // Handle requests for home side html
   server.on("/home", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/html", side_html);
   });
 
-  // Route for away side
+  // Handle requests for away side html
   server.on("/away", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/html", side_html);
   });
 
-  // Send a GET request to <ESP_IP>/updateServer?
+  // server.on("/alarm.wav", HTTP_GET, [](AsyncWebServerRequest *request) {
+  //     AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/alarm.wav", "audio/wav");
+  //     response->addHeader("Content-Disposition", "inline; filename=alarm.wav");
+  //     request->send(response);
+  // });
+
+  // Handle requests for updateServer call
   server.on("/updateServer", HTTP_GET, [] (AsyncWebServerRequest *request) {
     String msg;
     String side;
@@ -55,15 +66,24 @@ void startServer(){
     request->send(200, "text/plain", "OK");
   });
 
-  // Send a GET request to <ESP_IP>/time
+  // Handle requests for updateClient call
   server.on("/updateClient", HTTP_GET, [] (AsyncWebServerRequest *request) {
     request->send(200, "text/plain", updateSideClient());
-  });  
+  });
 
-  // Start server
-  server.begin();
+  Serial.println("Requests configured");
 }
-  
+
+void mountSPIFFS() {
+  if(!SPIFFS.begin(true)){
+      Serial.println("An Error has occurred while mounting SPIFFS");
+      return;
+  } else {
+      Serial.println("SPIFFS mounted");
+  } 
+}
+
+
 
 
 

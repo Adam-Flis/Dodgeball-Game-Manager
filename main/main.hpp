@@ -8,7 +8,7 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
-#include <ArduinoJson.h> 
+#include <ArduinoJson.h>
 
 #include "side.hpp"
 
@@ -27,6 +27,8 @@ extern long numbers[] = {
 };
 
 void startServer();
+void mountSPIFFS();
+bool loadWAVFile(const char* path, byte* buffer, size_t bufferSize);
 void updateSideServer(String str, String side);
 void updateMinMax(int min, int max);
 String updateSideClient();

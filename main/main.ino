@@ -5,14 +5,21 @@ Side away;
 
 // Setup
 void setup() { 
-  Serial.begin(115200);
-  delay(100);
-  startServer();
-  delay(100);
-  home.configure(18);
-  away.configure(25);
-  delay(100);
-  Serial.println("Setup Finished");
+    Serial.begin(115200);
+    
+    delay(100);
+
+    home.configure(18);
+    away.configure(25);
+    Serial.println("Digits configured");
+
+    delay(100);
+
+    startServer();
+
+    delay(100);
+
+    Serial.println("Setup finished");
 }
 
 // Loop that runs everything

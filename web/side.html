@@ -136,13 +136,18 @@ function capitalize(str) {
 }
 
 // Function to run on page load
+// Create an audio object
+var audio = new Audio();
 window.onload = load();
 function load() {
   const path = window.location.pathname;
   sideName = path.substring(path.lastIndexOf('/') + 1);
   document.getElementById("title").innerHTML = capitalize(sideName);
-  vibrate(500);
-  updatePage();  
+  setInterval(updatePage, 50);  
+  // Set the source of the audio object to the URL of the ESP32 server
+  //audio.src = 'http://192.168.4.1:80/alarm.wav';
+  // Load the audio file
+  //audio.load();
 }
 
 // Update the server when an action occurs 
@@ -169,22 +174,7 @@ const rgbToHex = (color) => {
   return `#${r}${g}${b}`;
 };
 
-function vibrate(ms) {
-  if ("vibrate" in window.navigator) {
-    // Android
-    window.navigator.vibrate(ms);
-  } else if ("webkitVibrate" in window.navigator) {
-    // iOS (only works in Safari)
-    window.navigator.webkitVibrate(ms);
-  } else if ("mozVibrate" in window.navigator) {
-    // Firefox
-    window.navigator.mozVibrate(ms);
-  } else {
-    console.log("Vibration not supported");
-  }
-}
-
-var lastVibrateTime = 0;
+var lastAudio = 0;
 // Update HTML page based on server information
 function updatePage() {
     var xhttp = new XMLHttpRequest();
@@ -225,17 +215,16 @@ function updatePage() {
       timerElement.style.color = hex;
       colorElement.value = hex;
 
-      if (side.violation && (Date.now() - lastVibrateTime) >= 1000) { // Vibrate every second if violation occurred 
-        vibrate(500);
-        lastVibrateTime = Date.now();
+      if (side.violation && (Date.now() - lastAudio) >= 1000) { // Alarm every second if violation occurred 
+        // Play the audio file
+        //audio.play();
+        lastAudio = Date.now();
       }      
     };
   }
   xhttp.open("GET", "/updateClient", true);
   xhttp.send();
 }
-
-setInterval(updatePage, 50);
 
 </script>
 </body>
