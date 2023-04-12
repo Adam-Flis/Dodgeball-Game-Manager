@@ -1,5 +1,5 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef MAIN_HPP
+#define MAIN_HPP
 
 #include <Adafruit_NeoPixel.h>
 #include <stdio.h>
@@ -8,28 +8,9 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
+#include <ArduinoJson.h>
 
-struct display {
-  int pin;
-  int numPixels;
-  Adafruit_NeoPixel pixels = Adafruit_NeoPixel(pin, numPixels, NEO_GRB + NEO_KHZ800);
-  int red;
-  int green;
-  int blue;
-};
-
-typedef struct side {
-  int cnt = 0;
-  int preCnt = 0;
-  int resetMax = 10;
-  int curMax = 10;
-  int playerCnt = 0;
-  int timeoutCnt = 0;
-  bool paused = false;
-  bool countUp = true;
-  bool _10sec = true;
-  struct display disp;
-} side;
+#include "side.hpp"
 
 extern long numbers[] = {
   0b000111111111111111111,  // [0] 0
@@ -45,18 +26,14 @@ extern long numbers[] = {
   0b000000000000000000000,  // [10] off
 };
 
-void configure(int pin, int numPixels, struct side *side);
+void startServer();
+void mountSPIFFS();
+bool loadWAVFile(const char* path, byte* buffer, size_t bufferSize);
+void updateSideServer(String str, String side);
+void updateMinMax(int min, int max);
+String updateSideClient();
 
-void displayNumber(int num, int segment, struct display *disp);
-void setColor(struct display *disp, int red, int green, int blue);
-void blackout(struct display *disp);
-
-void wifi();
-int getValue(int num, struct side *side);
-void count(int num, struct side *side);
-
-void update(int num);
-void updateColor(int red, int green, int blue);
-String getTimeValue(char side);
+extern const char index_html[];
+extern const char side_html[];
 
 #endif

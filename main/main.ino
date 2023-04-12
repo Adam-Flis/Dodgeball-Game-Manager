@@ -1,113 +1,120 @@
 #include "main.hpp"
 
-struct side Home;
-struct side Away;
-struct side Middle;
+Side home;
+Side away;
 
-long timer = 0;
-bool blink = false;
-bool paused = true;
-
+// Setup
 void setup() { 
-  Serial.begin(115200);
-  wifi();
-  delay(100);
-  configure(25, 42, &Home);
-  delay(200);
-  Serial.println("Setup Finished");
-  timer = millis();
-}
-
-void loop() {
-
-  if (!paused && millis() - timer >= 1000) { // 1 second has passed
-    timer = millis();
-
-    if (Home.cnt == 0) {
-      blink = !blink;
-    }   
+    Serial.begin(115200);
     
-    // Decrement count variables
-    if(Home.cnt > 0){
-      Home.cnt--;
+    delay(100);
+
+    home.configure(18);
+    away.configure(25);
+    Serial.println("Digits configured");
+
+    delay(100);
+
+    startServer();
+
+    delay(100);
+
+    Serial.println("Setup finished");
+}
+
+// Loop that runs everything
+void loop() {
+    // Home shot clock
+    if (!home.getPaused()) { // Check if clock is not paused
+        if (millis() - home.getTime() >= 1000) { // 1 second has passed
+            home.setTime(millis());
+            home.decrementCounts();
+            home.displayNumber(home.getCount());
+            if (home.getCount() == 0) {
+                home.toggleBlink();           
+            }  
+        }
+        if (home.getCount() == 0) { // Shot clock violation has occurred
+            home.setViolation(true);
+        }   
     }
-    if (Home.preCnt > 0) {
-      Home.preCnt--;
+
+    // Away shot clock
+    if (!away.getPaused()) { // Check if clock is not paused
+        if (millis() - away.getTime() >= 1000) { // 1 second has passed
+            away.setTime(millis());
+            away.decrementCounts();
+            away.displayNumber(away.getCount());
+            if (away.getCount() == 0) {
+                away.toggleBlink();           
+            }  
+        }
+        if (away.getCount() == 0) { // Shot clock violation has occurred
+            away.setViolation(true);
+        }
     }
 
-    // Display
-    if (Home.cnt >= 0 && !blink) {
-      count(Home.cnt, &Home);      
-    } 
+    delay(10);
+}
 
-    // Flash lights on violation
-    if (blink) {
-      blackout(&(Home.disp));
-    }    
-  } else if (paused) {
-    count(Home.cnt, &Home); 
-    int delta = millis() - timer;
-    timer = millis() + delta;
-  }
-
-  delay(10);  
-} 
-
-void update(int num) {
-    switch (num) {
-    case 0: // Toggle 10 second
-      Home._10sec = true;
-      Home.resetMax = 10;
-      break;
-    case 1: // Toggle 15 second
-      Home._10sec = false;
-      Home.resetMax = 15;
-      break;
-    case 2: // Reset
-      Home.preCnt = Home.cnt;
-      Home.cnt = Home.resetMax;
-      Home.curMax = Home.resetMax;
-
-      // Reset to inital value
-      count(Home.cnt, &Home);
-
-      blink = false;
-      timer = millis();
-      break;
-    case 3: // Swap cnt and preCnt, revert reset
-    {
-      int temp = Home.cnt;        
-      Home.cnt = Home.preCnt;
-      Home.preCnt = temp;
-      blink = false;
-      break;
-    }
-    case 4: // Toggle count up
-      Home.countUp = true;
-      count(Home.cnt, &Home);
-      break;
-    case 5: // Toggle count down
-      Home.countUp = false;
-      count(Home.cnt, &Home);
-      break;
-    case 6:// Toggle pause
-      paused = !paused;
-    default:
-      break;
+// Update function that gets called from server
+void updateSideServer(String str, String side) {
+    if (side == "home") {
+        home.updateState(str);
+    } else if (side == "away") {
+        away.updateState(str);
     }
 }
 
-void updateColor(int red, int green, int blue) {
-  setColor(&(Home.disp), red, green, blue);
+// Update min/max function that gets called from server
+void updateMinMax(int min, int max) {
+    setMin(min);
+    setMax(max);
+    home.updateResetMax();
+    away.updateResetMax();
 }
 
-String getTimeValue(char side) {
-  switch (side) {
-    case 'H':
-        return String(getValue(Home.cnt, &Home));
-    default:
-      return "99";
-  }
+// Update function that updates the webpage
+String updateSideClient() {
+
+    // Create JSON object
+    DynamicJsonDocument doc(512);
+
+    // Both sides objects
+    JsonObject bothObj = doc.createNestedObject("both");
+    bothObj["max"] = getMax();
+    bothObj["min"] = getMin();
+
+    // Home elements
+    JsonObject homeObj = doc.createNestedObject("home");
+    homeObj["count"] = home.convertNumber(home.getCount());
+    homeObj["paused"] = home.getPaused();
+    homeObj["violation"] = home.getViolation();
+    homeObj["countDown"] = !home.getDirection();
+    homeObj["isMax"] = !home.getDuration();
+    
+    // Color elements
+    JsonObject homeColorObj = homeObj.createNestedObject("color");
+    homeColorObj["red"] = home.getRed();
+    homeColorObj["green"] = home.getGreen();
+    homeColorObj["blue"] = home.getBlue();
+
+    // Away elements
+    JsonObject awayObj = doc.createNestedObject("away");
+    awayObj["count"] = away.convertNumber(away.getCount());
+    awayObj["paused"] = away.getPaused();
+    awayObj["violation"] = away.getViolation();
+    awayObj["countDown"] = !away.getDirection();
+    awayObj["isMax"] = !away.getDuration();    
+    
+    // Color elements
+    JsonObject awayColorObj = awayObj.createNestedObject("color");
+    awayColorObj["red"] = away.getRed();
+    awayColorObj["green"] = away.getGreen();
+    awayColorObj["blue"] = away.getBlue();
+
+    // Convert JSON object to string
+    String ret;
+    serializeJson(doc, ret);
+    return ret;
 }
-
-
