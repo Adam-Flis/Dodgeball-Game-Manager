@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Clock</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html {
+            font-family: Arial; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .number-input {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .colon {
+            font-size: 100px;
+            margin: 0px;
+            margin-top: -25px;
+            padding: 0px;
+        }
+        .number-input input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+            padding: 0px;
+            width: 130px;
+            text-align: center;
+            font-size: 80px;
+            border: none;
+            outline: none;
+        }
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .number-input .arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .number-input .arrow button {
+            width: 48px;
+            height: 48px;
+            font-size: 48px;
+            margin: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .number-input tr.hidden-row {
+            display: none;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .container button {
+            padding: 14px 20px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #ADD8E6;
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <a href="#" onclick="window.history.back();" style="position: absolute; top: 0; left: 0; font-size: 24px;"><---</a>
+    <h1 style="margin-bottom: -10px" id="title">Game Clock</h1>
+    <h4>
+    <table class="number-input">
+        <tr class="hidden-row">
+            <td class="arrow"><button onclick="increment('minutes')">▲</button></td>
+            <td></td>
+            <td class="arrow"><button onclick="increment('seconds')">▲</button></td>
+        </tr>
+        <tr class="nums">
+            <td><input type="number" id="minutes" min="00" max="99" value="00"></td>
+            <td class="colon">:</td>
+            <td><input type="number" id="seconds" min="00" max="59" value="00"></td>
+        </tr>
+        <tr class="hidden-row">
+            <td class="arrow"><button onclick="decrement('minutes')">▼</button></td>
+            <td></td>
+            <td class="arrow"><button onclick="decrement('seconds')">▼</button></td>
+        </tr>
+    </table>
+
+    <div class="container">
+        <button id="timeoutBtn" onclick="modeChange()">TIMEOUT</button>
+        <div id="saveCancelButtons" style="display: none;">
+        <button id="saveBtn" onclick="changes('save')">Save</button>
+        <button id="cancelBtn" onclick="changes('cancel')">Cancel</button>
+        </div>
+    </div>
+    </h4>
+<script>
+
+var originalMin = 0;
+var originalSec = 0;
+
+function modeChange() {
+    var timeoutButton = document.getElementById("timeoutBtn");
+    var saveCancelButtons = document.getElementById("saveCancelButtons");
+
+    originalMin = document.getElementById('minutes').value;
+    originalSec = document.getElementById('seconds').value;
+    timeoutButton.style.display = "none";
+    saveCancelButtons.style.display = "block";
+    editArrows();        
+}
+
+function editArrows() {
+    var rows = document.querySelectorAll('.number-input tr');
+    for (var i = 0; i < rows.length; i++) {
+        if (i === 0 || i === 2) {
+            if (rows[i].classList.contains('hidden-row')) {
+                rows[i].classList.remove('hidden-row');
+            } else {
+                rows[i].classList.add('hidden-row');
+            }
+        }
+    }
+}
+
+function changes(change) {
+    var timeoutButton = document.getElementById("timeoutBtn");
+    var saveCancelButtons = document.getElementById("saveCancelButtons");
+    if (change === 'cancel') {
+        var min = document.getElementById('minutes').value;
+        var sec = document.getElementById('seconds').value;
+        if (originalMin !=  min || originalSec != sec) {
+            var confirmResult = confirm("You have unsaved changes. Are you sure you want to cancel?");
+            if (confirmResult) {
+                document.getElementById('minutes').value = originalMin;
+                document.getElementById('seconds').value = originalSec;
+            }  
+            else{
+                return;
+            }          
+        }
+    }
+    timeoutButton.style.display = "block";
+    saveCancelButtons.style.display = "none";
+    editArrows();
+}  
+
+function increment(id) {
+    var input = document.getElementById(id);
+    if (parseInt(input.value) < parseInt(input.max)) {
+        input.value = parseInt(input.value) + 1;
+    } else {
+        input.value = input.min;
+    }
+    if (input.value.length === 1) {
+        input.value = "0" + input.value;
+    }
+}
+
+function decrement(id) {
+    var input = document.getElementById(id);
+    if (parseInt(input.value) > parseInt(input.min)) {
+        input.value = parseInt(input.value) - 1;
+    } else {
+        input.value = input.max;
+    }
+    if (input.value.length === 1) {
+        input.value = "0" + input.value;
+    }
+}
+
+</script>
+</body>
+</html>

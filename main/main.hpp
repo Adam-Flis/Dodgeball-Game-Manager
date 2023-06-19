@@ -9,31 +9,36 @@
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
+#include "HardwareSerial.h"
 
-#include "side.hpp"
+#include "shotClock.hpp"
+#include "gameClock.hpp"
+#include "buzzer.hpp"
 
-extern long numbers[] = {
-  0b000111111111111111111,  // [0] 0
-  0b000111000000000000111,  // [1] 1
-  0b111111111000111111000,  // [2] 2
-  0b111111111000000111111,  // [3] 3
-  0b111111000111000000111,  // [4] 4
-  0b111000111111000111111,  // [5] 5
-  0b111000111111111111111,  // [6] 6
-  0b000111111000000000111,  // [7] 7
-  0b111111111111111111111,  // [8] 8
-  0b111111111111000111111,  // [9] 9
-  0b000000000000000000000,  // [10] off
-};
+extern long largeNums[];
+extern long smallNums[];
 
 void startServer();
-void mountSPIFFS();
-bool loadWAVFile(const char* path, byte* buffer, size_t bufferSize);
-void updateSideServer(String str, String side);
-void updateMinMax(int min, int max);
+void loadEvents();
+void updateSide(String side, String type, String value);
+void updateIndex(String min, String max);
+
 String updateSideClient();
+String rgbToHex(int r, int g, int b);
+
+extern const char* ssid;
+extern const char* password;
+
+// Create AsyncWebServer object on port 80
+extern AsyncWebServer server;
+
+extern ShotClock team1;
+extern ShotClock team2;
+extern GameClock gameClk;
+extern Buzzer buzzer;
+extern AsyncEventSource indexEvents;
 
 extern const char index_html[];
-extern const char side_html[];
+extern const char shotclock_html[];
 
 #endif

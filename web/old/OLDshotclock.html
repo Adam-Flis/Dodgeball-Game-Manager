@@ -1,6 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
-  <title>NCDA Shotclock</title>
+  <title>Shot Clock</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     html {
@@ -24,7 +25,7 @@
         justify-content: center;
         align-items: center;
         text-align: center;
-	  }
+    }
     .timer p {
         margin: 0;      
         display: flex;
@@ -32,7 +33,7 @@
         justify-content: center;
         font-size: 120px;
         color: #ff0000;
-	}
+    }
     button {
         scale: 2;
         font-size: 24px;
@@ -75,12 +76,11 @@
     input:checked+.slider:before {
         -webkit-transform: translateX(52px); 
         -ms-transform: translateX(52px); 
-        transform: translateX(52px)}
-
+        transform: translateX(52px)
+    }
     .slidertxt {
         margin-top: 40px;
-    }    
-
+    }
   </style>
 </head>
 
@@ -144,10 +144,6 @@ function load() {
   sideName = path.substring(path.lastIndexOf('/') + 1);
   document.getElementById("title").innerHTML = capitalize(sideName);
   setInterval(updatePage, 50);  
-  // Set the source of the audio object to the URL of the ESP32 server
-  //audio.src = 'http://192.168.4.1:80/alarm.wav';
-  // Load the audio file
-  //audio.load();
 }
 
 // Update the server when an action occurs 
@@ -184,9 +180,9 @@ function updatePage() {
 
       var side;
       if (sideName == "home") {
-        side = response.home;
+        side = response.team1;
       } else {
-        side = response.away;
+        side = response.team2;
       }
 
       // Update min/max text
@@ -213,13 +209,7 @@ function updatePage() {
       const hex = rgbToHex(rgb);
 
       timerElement.style.color = hex;
-      colorElement.value = hex;
-
-      if (side.violation && (Date.now() - lastAudio) >= 1000) { // Alarm every second if violation occurred 
-        // Play the audio file
-        //audio.play();
-        lastAudio = Date.now();
-      }      
+      colorElement.value = hex; 
     };
   }
   xhttp.open("GET", "/updateClient", true);
