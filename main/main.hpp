@@ -19,12 +19,11 @@ extern long largeNums[];
 extern long smallNums[];
 
 void startServer();
-void loadEvents();
-void updateSide(String side, String type, String value);
 void updateIndex(String min, String max);
 
-String updateSideClient();
+String getData();
 String rgbToHex(int r, int g, int b);
+void updateClient();
 
 extern const char* ssid;
 extern const char* password;
@@ -36,9 +35,10 @@ extern ShotClock team1;
 extern ShotClock team2;
 extern GameClock gameClk;
 extern Buzzer buzzer;
-extern AsyncEventSource indexEvents;
+extern AsyncEventSource events;
 
 extern const char index_html[];
+extern const char gameclock_html[];
 extern const char shotclock_html[];
 
 #endif

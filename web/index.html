@@ -142,6 +142,13 @@
     .number-input button:hover {
       background-color: #f0f0f0;
     }
+
+    @media (hover: hover) {
+      /* Only apply hover effect on devices that support hover */
+      .button:hover{
+          background-color: #f0f0f0;
+      }      
+    }
     
   </style>
 </head>
@@ -168,8 +175,8 @@
   <div class="section">
     <label>Referees:</label>
     <div>    
-      <a href="/matchclock" class="link"><button id="ref-btn">
-        <p>Match Clock</p>
+      <a href="/gameclock" class="link"><button id="ref-btn">
+        <p>Game Clock</p>
       </button></a>      
     </div>
   </div>
@@ -210,6 +217,8 @@
   </div>
 
   <script>
+    var side = "index";
+    var source;
 
     // Function to run on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -217,7 +226,7 @@
     });
 
     function load() {
-      source = new EventSource(`/events/index`);
+      source = new EventSource(`/events`);
       source.addEventListener('update', events);
       setTimeout(function() {  
         updateServer("undefined", "undefined");      
@@ -234,9 +243,9 @@
         });
 
         // When the input loses focus, add event listener
-        input.addEventListener('blur', function() {
-            checkMinMax();
+        input.addEventListener('blur', function() {            
             source.addEventListener('update', events);
+            checkMinMax();
         });      
       });
     }
@@ -286,7 +295,6 @@
 
     // Update the server when an action occurs 
     function updateServer(min, max) {
-      var side = "index"     
       var xhr = new XMLHttpRequest();
       xhr.open("GET", `/updateServer?side=${side}&min=${min}&max=${max}`, true);    
       xhr.send();
@@ -295,14 +303,25 @@
     // Add event listeners 
     function events(e) {
       var response = JSON.parse(e.data);
+      var team1 = response.team1;
+      var team2 = response.team2;
 
       // Update shot clockers buttons
-      document.getElementById("team1-name").innerHTML = response.team1Name;
-      document.getElementById("team2-name").innerHTML = response.team2Name;
+      if (team1.name === "") { // Team 1
+        document.getElementById("team1-name").innerHTML = team1.side;
+      } else {
+        document.getElementById("team1-name").innerHTML = team1.side + ":\n" + team1.name;
+      }
+
+      if (team2.name === "") { // Team 2
+        document.getElementById("team2-name").innerHTML = team2.side;        
+      } else {
+        document.getElementById("team2-name").innerHTML = team2.side + ":\n" + team2.name;
+      }
 
       // Update shot clock timer
-      document.getElementById("min").value = response.min;
-      document.getElementById("max").value = response.max;      
+      document.getElementById("min").value = response.other.minimumLength;
+      document.getElementById("max").value = response.other.maximumLength;      
     }
 
   </script>

@@ -1,7 +1,8 @@
-#include "HardwareSerial.h"
 #include "main.hpp"
 
-extern long largeNums[] = {
+
+// Define variables
+long largeNums[] = {
   0b111111111000111111111, // [0] 0
   0b000000111000000000111, // [1] 1
   0b000111111111111111000, // [2] 2
@@ -15,7 +16,7 @@ extern long largeNums[] = {
   0b000000000000000000000, // [10] off
 };
 
-extern long smallNums[] = {
+long smallNums[] = {
   0b11111100111111, // [0] 0
   0b00001100000011, // [1] 1
   0b00111111111100, // [2] 2
@@ -29,10 +30,13 @@ extern long smallNums[] = {
   0b00000000000000, // [10] off
 };
 
-// Replace with your network credentials
+bool update = false;
+
+// Network credentials
 const char* ssid = "NCDAShotclock";
 const char* password = "Dodgeball";
 
+// Class instances
 ShotClock team1;
 ShotClock team2;
 GameClock gameClk;
@@ -41,29 +45,36 @@ Buzzer buzzer;
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-// Create an Event Source on /events/index
-AsyncEventSource indexEvents("/events/index"); 
+// Create an Event Source on /events
+AsyncEventSource events("/events"); 
 
 // Setup
 void setup() { 
     Serial.begin(115200);
     delay(100);
 
+    // Configure displays
     team1.configure(26, "Team 1");
     team2.configure(25, "Team 2");
-    gameClk.configure(12);
+    gameClk.configure(19, "Game Clock");
     Serial.println("Displays configured");
+
+    delay(100);
+
+    // Configure buzzers
     buzzer.configure(18, OUTPUT);
+    Serial.println("Buzzers configured");
 
     delay(100);
 
-    startServer();
+    startServer(); // Start server
 
-    delay(100);
-    // gameClk.setMin(0);
-    // gameClk.setSec(05);
+    delay(100);   
+
+    // Display initial values 
     team1.display();
     team2.display();
+    gameClk.display();
     Serial.println("Setup finished");
 }
 
@@ -71,33 +82,36 @@ void setup() {
 void loop() {
 
     // Game clock
-    // if (!gameClk.getPaused()) { // Check if clock is not paused
-    //     if (millis() - gameClk.getTime() >= 1000) { // 1 second has passed
-    //     gameClk.setTime(millis());
-    //     gameClk.decrement();
-    //     gameClk.display();
-    //     if(gameClk.getMin() == 0 && gameClk.getSec() == 0){
-    //         gameClk.toggleBlink();
-    //         buzzer.toggle();
-    //     }            
-    // }    
+    if (millis() - gameClk.getTimer() >= 1000) { // 1 second has passed
+        gameClk.resetTimer();
+        if (!gameClk.getPaused()) { // Check if clock is not paused
+            gameClk.decrement();
+            gameClk.display();
+            if (gameClk.getMin() == 0 && gameClk.getSec() == 0) {
+                //gameClk.setViolation(true);
+                gameClk.toggleBlink();
+            }
+            update = true;  
+        }
+    }
     
-    // team1 shot clock
-    if (millis() - team1.getTime() >= 1000) { // 1 second has passed
-        team1.setTime();
+    // Team 1 shot clock
+    if (millis() - team1.getTimer() >= 1000) { // 1 second has passed
+        team1.resetTimer();
         if (!team1.getPaused()) { // Check if clock is not paused
             team1.decrement();
             team1.display();
             if (team1.getCount() == 0) {
                 team1.setViolation(true);
                 team1.toggleBlink();
-            }  
-        }      
+            }
+            update = true;  
+        }
     }
 
-    // team2 shot clock
-    if (millis() - team2.getTime() >= 1000) { // 1 second has passed
-        team2.setTime();
+    // Team 2 shot clock
+    if (millis() - team2.getTimer() >= 1000) { // 1 second has passed
+        team2.resetTimer();
         if (!team2.getPaused()) { // Check if clock is not paused
             team2.decrement();
             team2.display();
@@ -105,8 +119,9 @@ void loop() {
                 team2.setViolation(true);
                 team2.toggleBlink(); 
             }
+            update = true;
         }
-    } 
+    }    
     
     /*
     // Fade in/out
@@ -169,69 +184,17 @@ void loop() {
     //     buzzer.run(3);   
     // }
 
-    delay(10);
-}
-
-// Update function that gets called from server
-void updateSide(String side, String type, String value) {
-    if (side == "team1") {
-        team1.updateState(type, value);
-    } else if (side == "team2") {
-        team2.updateState(type, value);
+    if (update) {
+        updateClient();
+        update = false;
     }
-}
 
-// Update min/max function that gets called from server
-void updateIndex(String min, String max) {
-
-    if (min != "undefined" && max != "undefined") {
-        setMin(min.toInt());
-        setMax(max.toInt());
-        team1.updateResetMax();
-        team2.updateResetMax();
-        team1.updatePage();
-        team2.updatePage();
-    }    
-
-    // Create JSON object
-    DynamicJsonDocument doc(512);   
-    if (team1.getName() == "") {
-        doc["team1Name"] = "Team 1";
+    // Check if the buzzer duration has elapsed
+    if (millis() - buzzer.getTimer() <= buzzer.getRunTime() * 1000) {
+        buzzer.on();
     } else {
-        doc["team1Name"] = "Team 1:<br>" + team1.getName();
-    } 
+        buzzer.off();
+    }
 
-    if (team2.getName() == "") {
-        doc["team2Name"] = "Team 2";
-    } else {
-        doc["team2Name"] = "Team 2:<br>" + team2.getName();
-    } 
-    doc["min"] = getMin();
-    doc["max"] = getMax();
-    String ret;
-    serializeJson(doc, ret);
-    indexEvents.send(ret.c_str(), "update", millis());
-}
-
-// Convert RGB to hex
-String rgbToHex(int r, int g, int b) {
-  String red = String(r, HEX);
-  String green = String(g, HEX);
-  String blue = String(b, HEX);
-
-  String hex = "#";
-  if (red.length() == 1) {
-    hex += "0";
-  }
-  hex += red;
-  if (green.length() == 1) {
-    hex += "0";
-  }
-  hex += green;
-  if (blue.length() == 1) {
-    hex += "0";
-  }
-  hex += blue;
-  
-  return hex;
+    delay(10);
 }

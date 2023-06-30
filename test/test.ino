@@ -8,6 +8,13 @@ int redColor = 0;
 int greenColor = 0;
 int blueColor = 0;
 void setup() { pixels.begin(); }
+
+void setColor() {
+  redColor = random(0, 255);
+  greenColor = random(0, 255);
+  blueColor = random(0, 255);
+}
+
 void loop() {
   setColor();
   for (int i = 0; i < NUMPIXELS; i++) {
@@ -15,9 +22,4 @@ void loop() {
     pixels.show();
     delay(delayval);
   }
-}
-void setColor() {
-  redColor = random(0, 255);
-  greenColor = random(0, 255);
-  blueColor = random(0, 255);
 }

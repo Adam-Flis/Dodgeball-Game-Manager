@@ -20,12 +20,9 @@ int getMax() {
     return maxTime;
 }
 
+// Configure LEDs and events
 void ShotClock::configure(int pin, String str) {
     side = str;
-    String newStr = str;
-    newStr.replace(" ", "");
-    newStr.toLowerCase();
-    events = AsyncEventSource("/events/" + newStr);
     pixels.setPin(pin);
     pixels.begin();            
 }
@@ -60,6 +57,7 @@ float ShotClock::getBrightness() {
     return brightness;
 }
 
+// Display functions
 void ShotClock::setDisplay(int num, int segment) {
 
     // Segment from left to right: 1, 0
@@ -87,7 +85,6 @@ void ShotClock::display() {
         setDisplay(sec % 10, 0);
         pixels.show();
     } else { off(); }
-    updatePage();
 }
 
 void ShotClock::off() {
@@ -95,6 +92,7 @@ void ShotClock::off() {
     pixels.show();
 }
 
+// Counter functions
 int ShotClock::convertNumber(int num) {
     int ret = num;
     // Count up or down
@@ -111,6 +109,12 @@ void ShotClock::decrement() {
     if (preCnt > 0) preCnt--;            
 }
 
+void ShotClock::setCount(int val) {
+    preCnt = cnt;
+    cnt = val;
+}
+
+// Other functions
 void ShotClock::reset() {
     preCnt = cnt;
     cnt = resetMax;
@@ -119,7 +123,7 @@ void ShotClock::reset() {
     violation = false;
     timer = millis();
 
-    // Reset to inital value
+    // Update display
     display();
 }
 
@@ -134,19 +138,31 @@ void ShotClock::undo() {
     display();
 }
 
-// Clock violation functions
+// Timer functions
+unsigned long ShotClock::getTimer() {
+    return timer;
+}
+
+void ShotClock::resetTimer() {
+    timer = millis();
+}
+
+// Violation functions
 void ShotClock::setViolation(bool state) {
     violation = state;
+}
+
+void ShotClock::toggleViolation() {
+    violation = !violation;
 }
 
 bool ShotClock::getViolation() {
     return violation;
 }
 
-// Count up or down functions
-void ShotClock::updateResetMax() {
-    if (isMin) resetMax = getMin();
-    else resetMax = getMax();
+// Direction functions
+void ShotClock::setDirection(bool state) {
+    countDown = state;
 }
 
 void ShotClock::toggleDirection() {
@@ -154,31 +170,37 @@ void ShotClock::toggleDirection() {
     display();
 }
 
-bool ShotClock::getDirection() {
-    return countDown;
+String ShotClock::getDirection() {
+    if (countDown) return "down";
+    return "up";
+}
+
+// Duration functions
+void ShotClock::setDuration(bool state) {
+    isMin = state;
+    updateResetMax();  
 }
 
 void ShotClock::toggleDuration() {
     isMin = !isMin;
-    updatePage();
     updateResetMax();
 }
 
-bool ShotClock::getDuration() {
-    return isMin;
+String ShotClock::getDuration() {
+    if (isMin) return "minimum";
+    return "maximum";
 }
 
-// Paused functions
+// Pause functions
 void ShotClock::togglePause() {
-    paused = !paused;
-    if (paused) {
+    if (!paused) {
         pause();
     }
-    else unpause();
+    else unpause();    
 }
 
 void ShotClock::pause() {
-    if (paused) {
+    if (!paused) {
         paused = true;
         blink = false;
         fade = true;
@@ -189,7 +211,7 @@ void ShotClock::pause() {
 }
 
 void ShotClock::unpause() {
-    if (!paused) {
+    if (paused) {
         paused = false;
         blink = false;
         fade = false;
@@ -203,12 +225,11 @@ bool ShotClock::getPaused() {
     return paused;
 }
 
-// Blink functions
+// Blink/fade functions
 void ShotClock::toggleBlink() {
     blink = !blink;
 }
 
-// Fade functions
 void ShotClock::setFade(bool state) {
     fade = state;
 }
@@ -217,13 +238,75 @@ bool ShotClock::getFade() {
     return fade;
 }
 
-// Time functions
-unsigned long ShotClock::getTime() {
-    return timer;
+// Player functions
+void ShotClock::addPlayer() {
+    players++;
 }
 
-void ShotClock::setTime() {
-    timer = millis();
+void ShotClock::subPlayer() {
+    players--;
+}
+
+int ShotClock::getPlayers() {
+    return players;
+}
+
+void ShotClock::setPlayers(int val) {
+    players = val;
+}
+
+// Timeout functions
+void ShotClock::addTimeout() {
+    timeouts++;
+}
+
+void ShotClock::subTimeout() {
+    timeouts--;
+}
+
+int ShotClock::getTimeouts() {
+    return timeouts;
+}
+
+void ShotClock::setTimeouts(int val) {
+    timeouts = val;
+}
+
+// Point functions
+void ShotClock::addPoint() {
+    points++;
+}
+
+void ShotClock::subPoint() {
+    points--;
+}
+
+int ShotClock::getPoints() {
+    return points;
+}
+
+void ShotClock::setPoints(int val) {
+    points = val;
+}
+
+// Name functions
+void ShotClock::setName(String val) {
+    name = val;
+}
+
+String ShotClock::getName() {
+    return name;
+}
+
+String ShotClock::getSide() {
+    return side;
+}
+
+// Update functions
+// Count up or down functions
+void ShotClock::updateResetMax() {
+    if (isMin) resetMax = getMin();
+    else resetMax = getMax();
 }
 
 // Update variable states depending on what the server sends
@@ -243,49 +326,17 @@ void ShotClock::updateState(String type, String value) {
         setColor(red, green, blue);
     } else if (type == "players") { // Update player count    
         int num = value.toInt();
-        playerCnt = num;
-        updatePage();
+        players = num;
     } else if (type == "points") { // Update points
         int num = value.toInt();
         points = num;
-        updatePage();
     } else if (type == "timeouts") { // Update timeout count
         int num = value.toInt();
-        timeoutCnt = num;
-        updatePage();
+        timeouts = num;
     } else if (type == "name") { // Update name
         name = value;
-        updatePage();
-        updateIndex("undefined", "undefined");
-    } else if (type == "load") { // Update page
-        updatePage();
     }
+    updateClient();
 }
 
-void ShotClock::updatePage() {
-    // Create JSON object
-    DynamicJsonDocument doc(512);
-    if (name == "") {
-        doc["title"] = side + ": Shot Clock";
-    } else {
-        doc["title"] = side + ": " + name + " Shot Clock";
-    }
-    doc["name"] = name;
-    doc["paused"] = paused;
-    doc["timer"] = convertNumber(cnt);
-    doc["duration"] = isMin;
-    doc["minLength"] = getMin();
-    doc["maxLength"] = getMax();
-    doc["points"] = points;
-    doc["players"] = playerCnt;
-    doc["timeouts"] = timeoutCnt;    
-    doc["color"] = rgbToHex(color[0], color[1], color[2]);
-    doc["direction"] = countDown;
-    String ret;
-    serializeJson(doc, ret);
-    events.send(ret.c_str(), "update", millis());
-}
 
-String ShotClock::getName() {
-    return name;
-}

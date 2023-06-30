@@ -24,20 +24,19 @@ void Buzzer::off() {
     digitalWrite(pin, buzzer);
 }
 
-void Buzzer::setTime() {
-    time = millis();
+void Buzzer::resetTimer() {
+    timer = millis();
 }
 
-void Buzzer::run(int sec) {
-  unsigned long currentMillis = millis();
+unsigned long Buzzer::getTimer() {
+    return timer;
+}
 
-  // Convert the duration from seconds to milliseconds
-  unsigned long buzzerDuration = sec * 1000;
+float Buzzer::getRunTime() {
+    return runTime;
+}
 
-  // Check if the buzzer should be turned on
-    if (currentMillis - time < buzzerDuration) {
-        on();
-    } else {
-        off();
-    }
+void Buzzer::run(float sec) {
+    resetTimer();
+    runTime = sec;
 }

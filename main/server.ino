@@ -24,6 +24,11 @@ void startServer(){
     request->send_P(200, "text/html", shotclock_html);
   });
 
+  // Handle requests for game clock html
+  server.on("/gameclock", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", gameclock_html);
+  });
+
   // Handle requests for updateServer call
   server.on("/updateServer", HTTP_GET, [](AsyncWebServerRequest *request) {
     
@@ -33,12 +38,15 @@ void startServer(){
       String min = request->getParam("min")->value();
       String max = request->getParam("max")->value();
       updateIndex(min, max); // Update the index
-    } else if (side == "both") {
-      Serial.println("Updating both");
+    } else if (side == "gameclock") {
+      String type = request->getParam("type")->value();
+      String value = request->getParam("value")->value();
+      gameClk.updateState(type, value); // Update the game clock
     } else {
       String type = request->getParam("type")->value();
       String value = request->getParam("value")->value();
-      updateSide(side, type, value); // Update the side
+      if (side == "team1") team1.updateState(type, value); // Update team 1
+      else if (side == "team2") team2.updateState(type, value); // Update team 2
     }          
 
     request->send(200, "text/plain", "OK");
@@ -47,10 +55,7 @@ void startServer(){
   Serial.println("Requests configured");
 
   // Handle Web Server Events
-  server.addHandler(&team1.events);
-  server.addHandler(&team2.events);
-  server.addHandler(&indexEvents);
-
+  server.addHandler(&events);
   Serial.println("Handlers configured");
 
   server.begin(); // Start server
