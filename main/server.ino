@@ -29,25 +29,42 @@ void startServer(){
     request->send_P(200, "text/html", gameclock_html);
   });
 
+  // Handle requests for settings html
+  server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", settings_html);
+  });
+
+  // // Handle requests for new game html
+  // server.on("/newgame", HTTP_GET, [](AsyncWebServerRequest *request){
+  //   request->send_P(200, "text/html", newgame_html);
+  // });
+
+  // Handle requests for practice html
+  server.on("/practice", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", practice_html);
+  });
+
   // Handle requests for updateServer call
   server.on("/updateServer", HTTP_GET, [](AsyncWebServerRequest *request) {
     
     // GET things on <ESP_IP>/update?
     String side = request->getParam("side")->value();
-    if (side == "index") {
+    if (side == "index") { // Update index
       String min = request->getParam("min")->value();
       String max = request->getParam("max")->value();
-      updateIndex(min, max); // Update the index
-    } else if (side == "gameclock") {
+      updateIndex(min, max);
+    } else if (side == "gameclock") { // Update game clock
       String type = request->getParam("type")->value();
       String value = request->getParam("value")->value();
       gameClk.updateState(type, value); // Update the game clock
-    } else {
+    } else if (side == "team1" || side == "team2") { // Update shot clock
       String type = request->getParam("type")->value();
       String value = request->getParam("value")->value();
       if (side == "team1") team1.updateState(type, value); // Update team 1
       else if (side == "team2") team2.updateState(type, value); // Update team 2
-    }          
+    } else if (side == "load") { // Update
+      updateClient();
+    }       
 
     request->send(200, "text/plain", "OK");
   });

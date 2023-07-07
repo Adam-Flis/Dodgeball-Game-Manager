@@ -40,5 +40,8 @@ extern AsyncEventSource events;
 extern const char index_html[];
 extern const char gameclock_html[];
 extern const char shotclock_html[];
+extern const char settings_html[];
+//extern const char newgame_html[];
+extern const char practice_html[];
 
 #endif

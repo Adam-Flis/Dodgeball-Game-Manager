@@ -92,7 +92,7 @@ String getData() {
 
     // Other
     other["minimumLength"] = getMin();
-    other["maximumLength"] = getMax();    
+    other["maximumLength"] = getMax();  
 
     // Send JSON object to client
     String ret;

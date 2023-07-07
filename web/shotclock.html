@@ -89,17 +89,17 @@
     }
 
     .button {
-        flex-grow: 1;
-        display: block;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-        border: 1px solid #ddd;
-        background-color: #fff;
-        font-size: 50px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      flex-grow: 1;
+      display: block;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      background-color: #fff;
+      font-size: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .button.left {
@@ -121,29 +121,29 @@
     }    
 
     .middle-container {
-        position: absolute;
-        top: 52%;
-        left: 49%;
-        transform: translate(-50%, -50%);
-        width: 150px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
+      position: absolute;
+      top: 52%;
+      left: 49%;
+      transform: translate(-50%, -50%);
+      width: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 5px;
     }   
       
     .timer {
-        width: 150px;
-        height: 150px;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        /*animation: timerInOut 2s ease-in-out infinite;*/
+      width: 150px;
+      height: 150px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /*animation: timerInOut 2s ease-in-out infinite;*/
     }
 
     .paused {
@@ -151,12 +151,12 @@
     }
 
     .timer p {
-        margin: 0;      
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 130px;
-        color: #ff0000;
+      margin: 0;      
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 130px;
+      color: #ff0000;
     }  
     
     .switch {
@@ -267,15 +267,15 @@
         <p id="timer-text">10</p>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center;">
-          <div style="display: flex; align-items: center;">
-            <span style="margin-right: 7px; margin-top: 7px; font-size: 20px" id="min-length">10</span>
-            <label class="switch">
-              <input type="checkbox" id="duration" onchange="updateServer(this)">
-              <span class="slider"></span>
-            </label>
-            <span style="margin-left: 7px; margin-top: 7px; font-size: 20px" id="max-length">15</span>
-          </div>
+        <div style="display: flex; align-items: center;">
+          <span style="margin-right: 7px; margin-top: 7px; font-size: 20px" id="min-length">10</span>
+          <label class="switch">
+            <input type="checkbox" id="duration" onchange="updateServer(this)">
+            <span class="slider"></span>
+          </label>
+          <span style="margin-left: 7px; margin-top: 7px; font-size: 20px" id="max-length">15</span>
         </div>
+      </div>
     </div>       
   </div>
 
@@ -289,8 +289,8 @@
         <label for="name">Name:</label>
         <input type="text" id="name" placeholder="Enter name"><br>
   
-        <label for="timer">Timer:</label>
-        <input type="number" id="timer" min="0" max="15" value="10"><br>
+        <label for="timer">Shot Clock:</label>
+        <input type="number" id="timer" min="0" max="99" value="10"><br>
   
         <label for="players">Players:</label>
         <input type="number" id="players" min="0" max="99" value="0"><br>
@@ -338,7 +338,9 @@
       source = new EventSource(`/events`);
       source.addEventListener('update', events);
       setTimeout(function() {  
-        updateServer("load");      
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/updateServer?side=load`, true);    
+        xhr.send();        
       }, 100);
 
       // Get all input elements
@@ -448,17 +450,15 @@
         //}
         document.getElementById("pause").innerHTML = text;               
 
-        // Update timer
+        // Update shot clock
         document.getElementById("timer-text").innerHTML = team.displayedCount;
         document.getElementById("timer").value = team.displayedCount;
 
         // Update min length
         document.getElementById("min-length").innerHTML = response.other.minimumLength;
-        document.getElementById("timer").min = response.other.minimumLength;
 
         // Update max length
         document.getElementById("max-length").innerHTML = response.other.maximumLength;
-        document.getElementById("timer").max = response.other.maximumLength;
 
         // Update length
         if (team.countDuration === "minimum") {

@@ -335,6 +335,10 @@ void ShotClock::updateState(String type, String value) {
         timeouts = num;
     } else if (type == "name") { // Update name
         name = value;
+    } else if (type == "timer") { // Update shot clock
+        reset();
+        int num = value.toInt();
+        cnt = num;
     }
     updateClient();
 }
