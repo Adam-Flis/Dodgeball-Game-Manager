@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Practice Mode</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      background-color: #3f51b5;
+      color: white;
+      font-size: 20px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0px 20px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar button {
+      font-weight: bold;
+      font-size: 20px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      color: white;
+    }
+
+    .container {
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .table {
+        width: 100%;
+        margin-bottom: 10px;
+        border-collapse: collapse;
+    }
+
+    td, th {
+      padding: 5px;
+      text-align: center;      
+    }
+
+    .team-name {
+        font-size: 25px;
+        padding: 5px;
+        width: 100%;
+    }
+    
+    .team-timer {
+        font-size: 70px;
+        color: #ff0000;
+        padding: 5px;
+        width: 100%;
+    }
+    
+    .name-container, .timer-container, .slider-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #ccc;        
+    }   
+
+    .table button {
+        background-color: #fff;
+        border: none;
+        color: black;
+        padding: 5px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 50px;
+        cursor: pointer;
+        width: 100%;
+        border-radius: 5px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .switch {
+        position: relative; 
+        display: inline-block; 
+        width: 60px; 
+        height: 34px;
+        margin-top: 5px;
+    } 
+  
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+  
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+  
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+  
+    input:checked + .slider {
+        background-color: #3f51b5;
+    }
+  
+    input:focus + .slider {
+        box-shadow: 0 0 1px #3f51b5;
+    }
+  
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+  
+    .slider:after {
+        color: white;
+        display: block;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        top: 50%;
+        left: 50%;
+        font-size: 10px;
+        font-family: Verdana, sans-serif;
+    }
+
+    .timer {
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        padding: 10px;
+        font-size: 70px;        
+    }
+
+    .timer span {
+        color: #ff0000;
+    }
+    
+    .buttons {
+        margin-top: 10px;
+    }
+
+    .buttons button {
+        background-color: #fff;
+        border: none;
+        color: black;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 50px;
+        cursor: pointer;
+        width: 100%;
+        border-radius: 5px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+    }
+
+    .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .popup-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f5f5f5;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        width: 80%; /* Adjust as needed */
+        max-width: 500px; /* Adjust as needed */
+    }      
+    
+    .popup-navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }   
+
+    .popup-options {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+    
+    .popup-options button {
+        background-color: #fff;
+        border: none;
+        color: black;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 20px;
+        cursor: pointer;
+        width: 90%;
+        border-radius: 5px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+        /* Adjust the breakpoint as needed */  
+        .table button {
+          font-size: 30px;
+        }
+
+        .team-name {
+            font-size: 15px;
+        }
+    }
+
+    @media (hover: hover) {
+        /* Only apply hover effect on devices that support hover */
+        .table button:hover {
+            background-color: #f0f0f0;
+        }   
+        .buttons button:hover {
+            background-color: #f0f0f0;
+        }
+        .popup-options button:hover {
+            background-color: #f0f0f0;
+        }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <button class="back-button" onclick="window.history.back()">&#8592;</button>
+    <span class="title">Practice Mode</span>
+    <a href="/settings" class="link"><button class="settings-button">&#9965;</button></a>
+  </div>  
+
+  <div class="container">
+    <table class="table">
+        <tbody>
+        <tr>
+            <td>
+            <div class="name-container">
+                <span id="team1-name" class="team-name">Team 1</span>
+            </div>
+            </td>
+            <td>
+            <div class="name-container">
+                <span id="team2-name" class="team-name">Team 2</span>
+            </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <div class="timer-container">
+                <span id="team1-timer" class="team-timer">10</span>
+            </div>
+            </td>
+            <td>
+            <div class="timer-container">
+                <span id="team2-timer" class="team-timer">10</span>
+            </div>
+            </td>
+        </tr>  
+        <tr>
+            <td><button id="team1-undo" onclick="updateServer(this)">UNDO</button></td>
+            <td><button id="team2-undo" onclick="updateServer(this)">UNDO</button></td>
+        </tr>
+        <tr>
+            <td><button id="team1-pause" onclick="updateServer(this)">PAUSE</button></td>
+            <td><button id="team2-pause" onclick="updateServer(this)">PAUSE</button></td>
+        </tr>
+        <tr>
+            <td><button id="team1-reset" onclick="updateServer(this)">RESET</button></td>
+            <td><button id="team2-reset" onclick="updateServer(this)">RESET</button></td>
+        </tr>
+        <tr>
+            <td>
+            <div  class="slider-container" style="flex-direction: column; padding-bottom: 5px">
+                <div style="display: flex; align-items: center;">
+                    <span style="margin-right: 7px; margin-top: 7px; font-size: 20px" id="team1-min-length">10</span>
+                    <label class="switch">
+                    <input type="checkbox" id="team1-duration" onchange="updateServer(this)">
+                    <span class="slider"></span>
+                    </label>
+                    <span style="margin-left: 7px; margin-top: 7px; font-size: 20px" id="team1-max-length">15</span>
+                </div>
+            </div>
+            </td>
+            <td>
+            <div  class="slider-container" style="flex-direction: column; padding-bottom: 5px">
+                <div style="display: flex; align-items: center;">
+                    <span style="margin-right: 7px; margin-top: 7px; font-size: 20px" id="team2-min-length">10</span>
+                    <label class="switch">
+                    <input type="checkbox" id="team2-duration" onchange="updateServer(this)">
+                    <span class="slider"></span>
+                    </label>
+                    <span style="margin-left: 7px; margin-top: 7px; font-size: 20px" id="team2-max-length">15</span>
+                </div>
+            </div>
+            </td>
+        </tr>
+    </tbody>
+    </table>
+    <div class="timer">
+        <span id="gameclock-text">25:00</span>
+    </div>        
+    <div class="buttons">
+        <button id="time-button" onclick="button(this)">TIMEOUT</button><br>
+        <button id="point-button" onclick="button(this)">START POINT</button>
+    </div>
+    <div>
+        <p style="display: none" id="team1-timeouts">0</p>
+        <p style="display: none" id="team2-timeouts">0</p>
+    </div>
+
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <div class="navbar" id="popup-navbar"></div>
+            <div class="popup-options" id="popup-options"></div>
+        </div>
+    </div> 
+
+  </div>
+
+  <script>
+    var source;
+
+    // Function to run on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        load();
+    });
+  
+    function load() {
+        source = new EventSource(`/events`);
+        source.addEventListener('update', events);
+        setTimeout(function() {  
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", `/updateServer?side=load`, true);    
+            xhr.send();      
+        }, 100);        
+    } 
+
+    function button(element) {
+        const type = element.innerHTML.toLowerCase().replace(" ", ""); 
+
+        // If the button is resume or startpoint, update server and return
+        if (type === "resume") {
+            if (document.getElementById('point-button').innerHTML === "START POINT") {
+                window.alert("Please start the point before resuming the game.");
+                return;
+            }
+            updateServer(type);
+        } else if (type === "startpoint") {
+            updateServer(type);
+        } else if (type == "endtimeout") {
+            updateServer(type);
+        }
+        else {
+            showPopup(element);
+        }
+    }
+
+    function showPopup(element) {
+        updateServer("pause");
+
+        const popupNavbar = document.getElementById('popup-navbar');
+        const popupOptions = document.getElementById('popup-options');        
+        const type = element.innerHTML.toLowerCase().replace(" ", "");             
+
+        // Popup navbar
+        popupNavbar.innerHTML = `<span>${element.innerHTML}</span>`;
+        popupNavbar.innerHTML += `<button class="close" id="${type}" value="close" onclick="closePopup(event.target)">&#88;</button>`;
+    
+        // Popup content
+        popupOptions.innerHTML = '';
+        var options = [];
+        
+        if (type === 'timeout') {
+            team1Timeouts = document.getElementById('team1-timeouts').innerHTML;
+            team2Timeouts = document.getElementById('team2-timeouts').innerHTML;
+            if (team1Timeouts > 0) {
+                options.push('Team 1');
+            }
+            if (team2Timeouts > 0) {
+                options.push('Team 2');
+            }
+            options.push('Official');                                           
+        } else if (type === 'endpoint') {
+            options = ['Team 1', 'Team 2', 'Draw'];            
+        }
+
+        options.forEach(option => {                
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.id = type;
+            button.value = option.replace(" ", "").toLowerCase();
+            button.onclick = () => closePopup(button);
+            popupOptions.appendChild(button);
+        });        
+        document.getElementById('popup').style.display = 'block';
+    }    
+    
+    function closePopup(element) {        
+        document.getElementById('popup').style.display = 'none';
+        updateServer(element);
+    }
+
+    // Update the server when an action occurs 
+    function updateServer(element) {
+        var str = element;
+        var value;
+        var side = "gameclock";   
+  
+        // Check if element is undefined
+        if (typeof element === "object") {
+            if (element.id.includes("-")) {
+                var beforeWordIndex = element.id.indexOf("-");
+                side = element.id.substring(0, beforeWordIndex);
+                str = element.id.substring(beforeWordIndex + 1);
+            } else {
+                str = element.id;
+            }            
+            value = element.value;
+        } 
+    
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/updateServer?side=${side}&type=${str}&value=${value}`, true);    
+        xhr.send();
+      }
+
+    function events(e) {
+        var response = JSON.parse(e.data);
+
+        var gameClock = response.gameClock;
+        var team1 = response.team1;
+        var team2 = response.team2;
+
+        // Update team names
+        if (team1.name === "") { // Team 1
+            document.getElementById("team1-name").innerHTML = team1.side;
+        } else {
+            document.getElementById("team1-name").innerHTML = team1.side + ": " + team1.name;
+        }
+
+        if (team2.name === "") { // Team 2
+            document.getElementById("team2-name").innerHTML = team2.side;        
+        } else {
+            document.getElementById("team2-name").innerHTML = team2.side + ": " + team2.name;
+        }
+
+        // Update team shot clockers
+        document.getElementById('team1-timer').innerHTML = team1.displayedCount;
+        document.getElementById('team2-timer').innerHTML = team2.displayedCount;
+
+        // Update color
+        document.getElementById("team1-timer").style.color = team1.color.hex;
+        document.getElementById("team2-timer").style.color = team2.color.hex;
+
+        // Update pause
+        var paused = team1.paused; // Team 1
+        var text = paused ? 'RESUME' : 'PAUSE';
+        document.getElementById("team1-pause").innerHTML = text;
+
+        paused = team2.paused; // Team 2
+        text = paused ? 'RESUME' : 'PAUSE';
+        document.getElementById("team2-pause").innerHTML = text;
+
+        // Update length
+        if (team1.countDuration === "minimum") { // Team 1
+            document.getElementById("team1-duration").checked = false; 
+        } else if (team1.countDuration === "maximum") {
+            document.getElementById("team1-duration").checked = true;
+        }
+        
+        if (team2.countDuration === "minimum") { // Team 2
+            document.getElementById("team2-duration").checked = false; 
+        } else if (team2.countDuration === "maximum") {
+            document.getElementById("team2-duration").checked = true;
+        }
+
+        // Update min length
+        document.getElementById("team1-min-length").innerHTML = response.other.minimumLength;
+        document.getElementById("team2-min-length").innerHTML = response.other.minimumLength;
+
+        // Update max length
+        document.getElementById("team1-max-length").innerHTML = response.other.maximumLength;
+        document.getElementById("team2-max-length").innerHTML = response.other.maximumLength;               
+
+        // Update display
+        var dispMinutes = gameClock.displayedMinutes;
+        var dispSeconds = gameClock.displayedSeconds;
+
+        if (dispMinutes < 10) {
+            dispMinutes = "0" + String(dispMinutes);
+        }
+        if (dispSeconds < 10) {
+            dispSeconds = "0" + String(dispSeconds);
+        }
+
+        document.getElementById('gameclock-text').innerHTML = dispMinutes + ":" + dispSeconds;        
+
+        // Update color
+        document.getElementById("gameclock-text").style.color = gameClock.color.hex;
+        
+        // Update buttons
+        var text = gameClock.paused ? 'RESUME' : 'TIMEOUT';
+        if (gameClock.timeout) {
+            text = 'END TIMEOUT'
+        }
+        document.getElementById('time-button').innerHTML = text;
+
+        text = gameClock.middleOfPoint ? 'ENDPOINT' : 'START POINT';
+        document.getElementById('point-button').innerHTML = text;
+        
+        // Update timeouts
+        document.getElementById('team1-timeouts').innerHTML = team1.timeoutsLeft;
+        document.getElementById('team2-timeouts').innerHTML = team2.timeoutsLeft;     
+    }   
+
+  </script>
+</body>
+</html>

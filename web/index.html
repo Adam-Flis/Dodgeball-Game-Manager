@@ -1,91 +1,279 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>NCDA Shotclock</title>
+  <title>NCDA Digital Game Controller</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-	<style>
-    label {
-      display: flex; 
-      justify-content: center; 
-      font-size: 24px
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
     }
-		/* Style for button container */
-		.side-container {
-			display: flex;
-			flex-direction: row;
-			justify-content: center;
-			align-items: center;
-		}
-		/* Style for buttons */
-		button {
-			padding: 14px 20px;
-			margin: 10px;
-			border: none;
-			cursor: pointer;
-			border-radius: 5px;
-			font-size: 16px;
-      background-color: #ADD8E6;
-		}
-    .link {
-      color: inherit; /* Inherit the color from its parent */
-      text-decoration: none; /* Remove underline */
+
+    .navbar {
+      background-color: #3f51b5;
+      color: white;
+      font-size: 20px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0px 20px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     }
-		.counter-container {
-      display: grid;
+
+    .navbar button {
+      font-weight: bold;
+      font-size: 20px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      color: white;
+    }
+
+    .navbar .home {
+      font-size: 30px;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .section label {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .section div {
+      display: flex;
       justify-content: center;
-      grid-template-columns: 10% 10%;
-      grid-gap: 10px;
-      margin-top: 10px;
-    }    
-    .counter-container label {
-      font-size: 16px;
-    }    
-    .counter-container input {
-      width: 100%;
-      text-align: center;
-      padding: 5px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-      background-color: #e6bbad;
+      gap: 15px;
     }
-	</style>
+
+    .section button {
+      background-color: #fff;
+      border: none;
+      color: black;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 20px;
+      cursor: pointer;
+      width: 170px;
+      border-radius: 5px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }    
+
+    .section button p {
+      margin: 0;
+      padding: 2px;
+      line-height: 1;
+    }
+
+    table {
+      display: table;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    .number-input {
+      display: flex;
+      background-color: #fff;
+      justify-content: center;
+      align-items: center;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .number-input input {
+      width: 50px;
+      height: 30px;
+      background: none;
+      text-align: center;
+      border: none;
+      font-size: 20px;
+      -moz-appearance: textfield;
+      appearance: textfield;
+      outline: none;
+    }
+
+    .number-input input::-webkit-inner-spin-button,
+    .number-input input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .number-input button {
+      width: 30px;
+      height: 30px;
+      color: black;
+      cursor: pointer;
+      border: none;
+      padding: 0px;
+      font-size: 25px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      transition: all 0.3s ease;
+    }    
+
+    @media (hover: hover) {
+      /* Only apply hover effect on devices that support hover */
+      .button:hover{
+        background-color: #f0f0f0;
+      }
+      .section button:hover {
+        background-color: #f0f0f0;
+      }
+      .number-input:hover {
+        background-color: #f0f0f0;
+      }
+      .number-input button:hover {
+        background-color: #f0f0f0;
+      }    
+    }
+    
+  </style>
 </head>
 <body>
-  <h1 style="margin-bottom: 10px; text-align: center;">NCDA Shotclock</h1>
+  <div class="navbar">
+    <button class="home" onclick="location.reload();">&#8962;</button>
+    <span class="title">NCDA Digital Game Controller</span>
+    <a href="/settings" class="link"><button class="settings-button">&#9965;</button></a>
+  </div>
 
-  <label for="side-select">Side Select:</label>
-  <div class="side-container" id="side-select">    
-		<button id="home-btn"><a href="/home" class="link">Home</a></button>
-		<button id="away-btn"><a href="/away" class="link">Away</a></button>
-	</div>
-
-	<label for="edit-counter">Edit Counter:</label>
-  <div class="counter-container" style="text-align: center;">
-    <div>
-      <label for="min">Min:</label>
-      <input type="number" id="min" name="min" min="0" max="15" value="10">
-    </div>
-    <div>
-      <label for="max">Max:</label>
-      <input type="number" id="max" name="max" min="15" max="99" value="15">
+  <div class="section">
+    <label>Shot Clockers:</label>
+    <div>    
+      <a href="/team1" class="link"><button id="team1-btn">
+        <p id="team1-name">Team 1</p>
+      </button></a>
+      <a href="/team2" class="link">      
+      <button id="team2-btn">
+        <p id="team2-name">Team 2</p>
+      </button></a> 
     </div>
   </div>
 
-	<script>
-    const minInput = document.getElementById('min');
-    const maxInput = document.getElementById('max');    
-    
+  <div class="section">
+    <label>Referees:</label>
+    <div>    
+      <a href="/gameclock" class="link"><button id="ref-btn">
+        <p>Game Clock</p>
+      </button></a>      
+    </div>
+  </div>
+
+  <div class="section">
+    <label>Other:</label>
+    <div>         
+      <button id="new-game-btn" onclick="construction()">
+        <p>New Game</p>
+      </button>
+      <a href="/practice" class="link"><button id="practice-btn">
+        <p>Practice</p>
+      </button></a>  
+    </div>
+  </div>
+
+  <div class="section">
+    <label>Edit Shot Clock Timer:</label>
+    <table>
+      <tbody>
+      <tr>
+        <td>Min:</td>
+        <td>Max:</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="number-input">
+            <button onclick="decrement('min')" style="margin-right: -20px">&#706;</button>
+            <input type="number" id="min" name="min" min="0" max="15" value="10">
+            <button onclick="increment('min')" style="margin-left: -20px">&#707;</button>              
+          </div>
+        </td>
+        <td>
+          <div class="number-input">
+            <button onclick="decrement('max')" style="margin-right: -20px">&#706;</button>
+            <input type="number" id="max" name="max" min="0" max="99" value="15">
+            <button onclick="increment('max')" style="margin-left: -20px">&#707;</button>  
+          </div>
+        </td>
+      </tr>
+    </tbody>
+    </table>
+  </div>
+
+  <script>
+    var side = "index";
+    var source;
+
     // Function to run on page load
-    window.onload = load();
+    document.addEventListener('DOMContentLoaded', function() {
+      load();
+    });
+
     function load() {
-      updatePage();
-      startUpdatePage();
+      source = new EventSource(`/events`);
+      source.addEventListener('update', events);
+      setTimeout(function() {  
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/updateServer?side=load`, true);    
+        xhr.send();       
+      }, 100);
+
+      // Get all input elements
+      var inputs = document.querySelectorAll('input');
+
+      // Add event listeners to each input element
+      inputs.forEach(function(input) {      
+        // When the input receives focus, remove event listener
+        input.addEventListener('focus', function() {
+            source.removeEventListener('update', events);
+        });
+
+        // When the input loses focus, add event listener
+        input.addEventListener('blur', function() {            
+            source.addEventListener('update', events);
+            checkMinMax();
+        });      
+      });
     }
 
+    function increment(inputId) {
+      var input = document.getElementById(inputId);
+      input.stepUp();
+      checkMinMax();
+    }
+
+    function decrement(inputId) {
+      var input = document.getElementById(inputId);
+      input.stepDown();
+      checkMinMax();
+    }
+
+    function construction() {
+      alert("This feature is still under construction!");
+    }
+    
     // Check min/max 
     function checkMinMax() {
+      const minInput = document.getElementById('min');
+      const maxInput = document.getElementById('max');   
       let min = parseInt(minInput.value);
       let max = parseInt(maxInput.value);
       if (min > max) {
@@ -110,53 +298,40 @@
       }
       minInput.setAttribute('max', max);
       maxInput.setAttribute('min', min);
-      update(min, max);
+      updateServer(min, max);
     }
 
     // Update the server when an action occurs 
-    function update(min, max) {    
+    function updateServer(min, max) {
       var xhr = new XMLHttpRequest();
-      xhr.open("GET", `/updateServer?min=${min}&max=${max}`, true);    
+      xhr.open("GET", `/updateServer?side=${side}&min=${min}&max=${max}`, true);    
       xhr.send();
     }
-  
-    // Update HTML page based on server information
-    function updatePage() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          var response = JSON.parse(this.responseText);
-          // Update min/max values
-          minInput.value = parseInt(response.both.min);
-          maxInput.value = parseInt(response.both.max);
-        }
+
+    // Add event listeners 
+    function events(e) {
+      var response = JSON.parse(e.data);
+      var team1 = response.team1;
+      var team2 = response.team2;
+
+      // Update shot clockers buttons
+      if (team1.name === "") { // Team 1
+        document.getElementById("team1-name").innerHTML = team1.side;
+      } else {
+        document.getElementById("team1-name").innerHTML = team1.side + ":\n" + team1.name;
       }
-      xhttp.open("GET", "/updateClient", true);
-      xhttp.send();
+
+      if (team2.name === "") { // Team 2
+        document.getElementById("team2-name").innerHTML = team2.side;        
+      } else {
+        document.getElementById("team2-name").innerHTML = team2.side + ":\n" + team2.name;
+      }
+
+      // Update shot clock timer
+      document.getElementById("min").value = response.other.minimumLength;
+      document.getElementById("max").value = response.other.maximumLength;      
     }
 
-    var intervalId;
-    function startUpdatePage() {
-      intervalId = setInterval(updatePage, 50);
-    }
-    
-    function stopUpdatePage() {
-      clearInterval(intervalId);
-    }
-    
-    minInput.addEventListener('blur', function() {
-      checkMinMax();
-      startUpdatePage();
-    });
-    
-    maxInput.addEventListener('blur', function() {
-      checkMinMax();
-      startUpdatePage();
-    });
-    
-    minInput.addEventListener('focus', stopUpdatePage);
-    maxInput.addEventListener('focus', stopUpdatePage);
-
-</script> 
+  </script>
 </body>
 </html>
