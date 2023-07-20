@@ -150,7 +150,7 @@
       margin-bottom: 10px;
     }
 
-    .options button {
+    .changebtn {
       background-color: #fff;
       border: none;
       color: black;
@@ -223,6 +223,27 @@
       width: 50px;
     } 
 
+    .swap {
+      background-color: #fff;
+      border: none;
+      color: black;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 20px;
+      cursor: pointer;
+      width: 100px;
+      border-radius: 5px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    .navbar .home {
+      font-size: 30px;
+    }
+
     @media (hover: hover) {
       /* Only apply hover effect on devices that support hover */
       .category:hover {
@@ -231,12 +252,8 @@
       .options p:hover {
         background-color: #f0f0f0;
       }
-    }
-
-    .navbar .home {
-      font-size: 30px;
-    }
-
+    }  
+   
   </style>
 </head>
 <body>
@@ -271,22 +288,25 @@
         <tr>
           <td>Min:</td>     
           <td><div class="number-input">
-            <button onclick="decrement('min')">&#706;</button>
+            <button class="changebtn" onclick="decrement('min')">&#706;</button>
             <input type="number" id="min" name="min" min="0" max="15" value="10">
-            <button onclick="increment('min')">&#707;</button>              
+            <button class="changebtn" onclick="increment('min')">&#707;</button>              
           </div><td>
         </tr> 
 
         <tr>
           <td>Max:</td>     
           <td><div class="number-input">
-            <button onclick="decrement('max')">&#706;</button>
+            <button class="changebtn" onclick="decrement('max')">&#706;</button>
             <input type="number" id="max" name="max" min="0" max="99" value="15">
-            <button onclick="increment('max')">&#707;</button>              
+            <button class="changebtn" onclick="increment('max')">&#707;</button>              
           </div><td>
         </tr>
       </tbody>
       </table>
+
+      <label for="swap">Change Sides:</label>
+      <button class="swap" id="gameclock-swap" onclick="updateServer(this)">Swap</button>
         
     </div>  
 
@@ -399,8 +419,8 @@
         <span class="category-arrow">&#10148;</span>
       </div>
       <div id="info-options" class="options">
-        <p>User Interface: V0.2</p>
-        <p>Software: V0.1</p>
+        <p>User Interface: V2.1.0-alpha</p>
+        <p>Software: V1.1.0-alpha</p>
       </div>
     </div>
   </div>
@@ -552,6 +572,8 @@
         var b = parseInt(value.substring(4, 6), 16);
         value = `r=${r}g=${g}b=${b}`;
       }
+
+      console.log(`side=${side}&type=${str}&value=${value}`);
 
       var xhr = new XMLHttpRequest();
       xhr.open("GET", `/updateServer?side=${side}&type=${str}&value=${value}`, true);    

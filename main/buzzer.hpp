@@ -5,7 +5,7 @@
 
 class Buzzer {
     private:
-        bool buzzer = LOW;
+        bool buzzer = false;
         int pin;
         float runTime = 0;
         unsigned long timer = 0;
@@ -18,7 +18,11 @@ class Buzzer {
         void resetTimer();
         unsigned long getTimer();
         float getRunTime();
-        void run(float sec);
+        void play(float duration);
+        void update();
+
+        int getPin();
+        void setPin(int pin_);
 };
 
 #endif

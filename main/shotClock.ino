@@ -302,6 +302,15 @@ String ShotClock::getSide() {
     return side;
 }
 
+// Pin functions
+int ShotClock::getPin() {
+    return pixels.getPin();
+}
+
+void ShotClock::setPin(int val) {
+    pixels.setPin(val);
+}
+
 // Update functions
 // Count up or down functions
 void ShotClock::updateResetMax() {
@@ -313,7 +322,11 @@ void ShotClock::updateResetMax() {
 void ShotClock::updateState(String type, String value) {
     if (type == "duration") toggleDuration(); // Toggle min/max sec
     else if (type == "reset") reset(); // Reset
-    else if (type == "undo") undo(); // Undo reset call
+    else if (type == "undo") {
+        undo(); // Undo reset call
+        if (side == "Team 1") buzzer1.play(0.5);
+        else if (side == "Team 2") buzzer2.play(0.5);
+    }
     else if(type == "direction") toggleDirection(); // Toggle count up or down
     else if (type == "pause") togglePause(); // Toggle paused
     else if (type == "color") { // Change color

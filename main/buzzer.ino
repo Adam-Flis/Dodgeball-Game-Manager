@@ -36,7 +36,24 @@ float Buzzer::getRunTime() {
     return runTime;
 }
 
-void Buzzer::run(float sec) {
+void Buzzer::play(float duration) {
     resetTimer();
-    runTime = sec;
+    runTime = duration;
+}
+
+void Buzzer::update() {
+    // Check if the buzzer duration has elapsed
+    if (millis() - timer <= runTime * 1000) {
+        on();
+    } else {
+        off();
+    }
+}
+
+void Buzzer::setPin(int pin_) {
+    pin = pin_;
+}
+
+int Buzzer::getPin() {
+    return pin;
 }

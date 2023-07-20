@@ -80,8 +80,11 @@ String getData() {
     team_2["name"] = team2.getName();
 
     // Game Clock
+    gameClock["displayedMinutes"] = gameClk.getDisplayMin();
+    gameClock["displayedSeconds"] = gameClk.getDisplaySec();
     gameClock["minutes"] = gameClk.getMin();
     gameClock["seconds"] = gameClk.getSec();
+    gameClock["timeout"] = gameClk.getTimeout();
     gameClock["half"] = gameClk.getHalf();
     gameClock["middleOfPoint"] = gameClk.getMidPoint();
     gameClock["paused"] = gameClk.getPaused();

@@ -385,6 +385,8 @@
             updateServer(type);
         } else if (type === "startpoint") {
             updateServer(type);
+        } else if (type == "endtimeout") {
+            updateServer(type);
         }
         else {
             showPopup(element);
@@ -515,26 +517,29 @@
 
         // Update max length
         document.getElementById("team1-max-length").innerHTML = response.other.maximumLength;
-        document.getElementById("team2-max-length").innerHTML = response.other.maximumLength;
+        document.getElementById("team2-max-length").innerHTML = response.other.maximumLength;               
 
-        // Update game clock
-        var minutes = gameClock.minutes;
-        var seconds = gameClock.seconds;
+        // Update display
+        var dispMinutes = gameClock.displayedMinutes;
+        var dispSeconds = gameClock.displayedSeconds;
 
-        if (minutes < 10) {
-            minutes = "0" + String(minutes);
+        if (dispMinutes < 10) {
+            dispMinutes = "0" + String(dispMinutes);
         }
-        if (seconds < 10) {
-            seconds = "0" + String(seconds);
+        if (dispSeconds < 10) {
+            dispSeconds = "0" + String(dispSeconds);
         }
 
-        document.getElementById('gameclock-text').innerHTML = minutes + ":" + seconds; 
+        document.getElementById('gameclock-text').innerHTML = dispMinutes + ":" + dispSeconds;        
 
         // Update color
         document.getElementById("gameclock-text").style.color = gameClock.color.hex;
         
         // Update buttons
         var text = gameClock.paused ? 'RESUME' : 'TIMEOUT';
+        if (gameClock.timeout) {
+            text = 'END TIMEOUT'
+        }
         document.getElementById('time-button').innerHTML = text;
 
         text = gameClock.middleOfPoint ? 'ENDPOINT' : 'START POINT';

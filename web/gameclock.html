@@ -360,8 +360,8 @@
             <div class="navbar" id="popup-navbar"></div>
             <div class="popup-options" id="popup-options"></div>
         </div>
-    </div>    
-
+    </div>   
+    
   <div class="settings-overlay">
     <div class="settings-page" id="settings">
       <div class="navbar" style="margin-bottom: 20px">
@@ -395,6 +395,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         load();
     });
+
+    
   
     function load() {
         source = new EventSource(`/events`);
@@ -437,6 +439,8 @@
             }
             updateServer(type);
         } else if (type === "startpoint") {
+            updateServer(type);
+        } else if (type == "endtimeout") {
             updateServer(type);
         }
         else {
@@ -548,24 +552,28 @@
         var team1 = response.team1;
         var team2 = response.team2;
 
-        // Update game clock
-        var minutes = gameClock.minutes;
-        var seconds = gameClock.seconds;
+        // Update game clock   
+        document.getElementById('minutes').value = gameClock.minutes;
+        document.getElementById('seconds').value = gameClock.seconds;
 
-        document.getElementById('minutes').value = minutes;
-        document.getElementById('seconds').value = seconds;
+        // Update display
+        var dispMinutes = gameClock.displayedMinutes;
+        var dispSeconds = gameClock.displayedSeconds;
 
-        if (minutes < 10) {
-            minutes = "0" + String(minutes);
+        if (dispMinutes < 10) {
+            dispMinutes = "0" + String(dispMinutes);
         }
-        if (seconds < 10) {
-            seconds = "0" + String(seconds);
+        if (dispSeconds < 10) {
+            dispSeconds = "0" + String(dispSeconds);
         }
 
-        document.getElementById('timer-text').innerHTML = minutes + ":" + seconds; 
+        document.getElementById('timer-text').innerHTML = dispMinutes + ":" + dispSeconds; 
         
         // Update buttons
         var text = gameClock.paused ? 'RESUME' : 'TIMEOUT';
+        if (gameClock.timeout) {
+            text = 'END TIMEOUT'
+        }
         document.getElementById('time-button').innerHTML = text;
 
         text = gameClock.middleOfPoint ? 'ENDPOINT' : 'START POINT';

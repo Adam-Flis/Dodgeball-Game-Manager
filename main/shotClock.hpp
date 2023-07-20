@@ -106,6 +106,10 @@ class ShotClock {
         String getName();
         String getSide();
 
+        // Pin functions
+        int getPin();
+        void setPin(int val);
+
         // Update functions
         void updateResetMax();
         void updateState(String type, String value);

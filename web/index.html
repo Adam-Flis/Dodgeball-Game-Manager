@@ -180,10 +180,10 @@
 
   <div class="section">
     <label>Other:</label>
-    <div>    
-      <a href="/newgame" class="link"><button id="new-game-btn">
+    <div>         
+      <button id="new-game-btn" onclick="construction()">
         <p>New Game</p>
-      </button></a>
+      </button>
       <a href="/practice" class="link"><button id="practice-btn">
         <p>Practice</p>
       </button></a>  
@@ -264,6 +264,10 @@
       var input = document.getElementById(inputId);
       input.stepDown();
       checkMinMax();
+    }
+
+    function construction() {
+      alert("This feature is still under construction!");
     }
     
     // Check min/max 

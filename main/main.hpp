@@ -34,7 +34,8 @@ extern AsyncWebServer server;
 extern ShotClock team1;
 extern ShotClock team2;
 extern GameClock gameClk;
-extern Buzzer buzzer;
+extern Buzzer buzzer1;
+extern Buzzer buzzer2;
 extern AsyncEventSource events;
 
 extern const char index_html[];

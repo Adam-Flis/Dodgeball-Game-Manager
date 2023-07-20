@@ -40,7 +40,8 @@ const char* password = "Dodgeball";
 ShotClock team1;
 ShotClock team2;
 GameClock gameClk;
-Buzzer buzzer;
+Buzzer buzzer1;
+Buzzer buzzer2;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -54,15 +55,16 @@ void setup() {
     delay(100);
 
     // Configure displays
-    team1.configure(26, "Team 1");
+    team1.configure(27, "Team 1");
     team2.configure(25, "Team 2");
-    gameClk.configure(19, "Game Clock");
+    gameClk.configure(26, "Game Clock");
     Serial.println("Displays configured");
 
     delay(100);
 
     // Configure buzzers
-    buzzer.configure(18, OUTPUT);
+    buzzer1.configure(18, OUTPUT);
+    buzzer2.configure(5, OUTPUT);
     Serial.println("Buzzers configured");
 
     delay(100);
@@ -87,9 +89,15 @@ void loop() {
         if (!gameClk.getPaused()) { // Check if clock is not paused
             gameClk.decrement();
             gameClk.display();
-            if (gameClk.getMin() == 0 && gameClk.getSec() == 0) {
-                //gameClk.setViolation(true);
-                gameClk.toggleBlink();
+            if (gameClk.getDisplayMin() == 0 && gameClk.getDisplaySec() == 0) {
+                if (gameClk.getTimeout()) {
+                    gameClk.setTimeout(false);
+                    gameClk.pause();
+                    gameClk.display();
+                } else {
+                    //gameClk.setViolation(true);
+                    gameClk.toggleBlink();
+                }
             }
             update = true;  
         }
@@ -102,7 +110,7 @@ void loop() {
             team1.decrement();
             team1.display();
             if (team1.getCount() == 0) {
-                team1.setViolation(true);
+                //team1.setViolation(true);
                 team1.toggleBlink();
             }
             update = true;  
@@ -116,7 +124,7 @@ void loop() {
             team2.decrement();
             team2.display();
             if (team2.getCount() == 0) {
-                team2.setViolation(true);
+                //team2.setViolation(true);
                 team2.toggleBlink(); 
             }
             update = true;
@@ -189,12 +197,9 @@ void loop() {
         update = false;
     }
 
-    // Check if the buzzer duration has elapsed
-    if (millis() - buzzer.getTimer() <= buzzer.getRunTime() * 1000) {
-        buzzer.on();
-    } else {
-        buzzer.off();
-    }
+    // Update buzzer
+    buzzer1.update();
+    buzzer2.update();
 
     delay(10);
 }

@@ -181,10 +181,10 @@ const char index_html[] PROGMEM = R"rawliteral(
 
   <div class="section">
     <label>Other:</label>
-    <div>    
-      <a href="/newgame" class="link"><button id="new-game-btn">
+    <div>         
+      <button id="new-game-btn" onclick="construction()">
         <p>New Game</p>
-      </button></a>
+      </button>
       <a href="/practice" class="link"><button id="practice-btn">
         <p>Practice</p>
       </button></a>  
@@ -265,6 +265,10 @@ const char index_html[] PROGMEM = R"rawliteral(
       var input = document.getElementById(inputId);
       input.stepDown();
       checkMinMax();
+    }
+
+    function construction() {
+      alert("This feature is still under construction!");
     }
     
     // Check min/max 
@@ -697,8 +701,8 @@ const char gameclock_html[] PROGMEM = R"rawliteral(
             <div class="navbar" id="popup-navbar"></div>
             <div class="popup-options" id="popup-options"></div>
         </div>
-    </div>    
-
+    </div>   
+    
   <div class="settings-overlay">
     <div class="settings-page" id="settings">
       <div class="navbar" style="margin-bottom: 20px">
@@ -732,6 +736,8 @@ const char gameclock_html[] PROGMEM = R"rawliteral(
     document.addEventListener('DOMContentLoaded', function() {
         load();
     });
+
+    
   
     function load() {
         source = new EventSource(`/events`);
@@ -774,6 +780,8 @@ const char gameclock_html[] PROGMEM = R"rawliteral(
             }
             updateServer(type);
         } else if (type === "startpoint") {
+            updateServer(type);
+        } else if (type == "endtimeout") {
             updateServer(type);
         }
         else {
@@ -885,24 +893,28 @@ const char gameclock_html[] PROGMEM = R"rawliteral(
         var team1 = response.team1;
         var team2 = response.team2;
 
-        // Update game clock
-        var minutes = gameClock.minutes;
-        var seconds = gameClock.seconds;
+        // Update game clock   
+        document.getElementById('minutes').value = gameClock.minutes;
+        document.getElementById('seconds').value = gameClock.seconds;
 
-        document.getElementById('minutes').value = minutes;
-        document.getElementById('seconds').value = seconds;
+        // Update display
+        var dispMinutes = gameClock.displayedMinutes;
+        var dispSeconds = gameClock.displayedSeconds;
 
-        if (minutes < 10) {
-            minutes = "0" + String(minutes);
+        if (dispMinutes < 10) {
+            dispMinutes = "0" + String(dispMinutes);
         }
-        if (seconds < 10) {
-            seconds = "0" + String(seconds);
+        if (dispSeconds < 10) {
+            dispSeconds = "0" + String(dispSeconds);
         }
 
-        document.getElementById('timer-text').innerHTML = minutes + ":" + seconds; 
+        document.getElementById('timer-text').innerHTML = dispMinutes + ":" + dispSeconds; 
         
         // Update buttons
         var text = gameClock.paused ? 'RESUME' : 'TIMEOUT';
+        if (gameClock.timeout) {
+            text = 'END TIMEOUT'
+        }
         document.getElementById('time-button').innerHTML = text;
 
         text = gameClock.middleOfPoint ? 'ENDPOINT' : 'START POINT';
@@ -1601,7 +1613,7 @@ const char settings_html[] PROGMEM = R"rawliteral(
       margin-bottom: 10px;
     }
 
-    .options button {
+    .changebtn {
       background-color: #fff;
       border: none;
       color: black;
@@ -1674,6 +1686,27 @@ const char settings_html[] PROGMEM = R"rawliteral(
       width: 50px;
     } 
 
+    .swap {
+      background-color: #fff;
+      border: none;
+      color: black;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 20px;
+      cursor: pointer;
+      width: 100px;
+      border-radius: 5px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    .navbar .home {
+      font-size: 30px;
+    }
+
     @media (hover: hover) {
       /* Only apply hover effect on devices that support hover */
       .category:hover {
@@ -1682,12 +1715,8 @@ const char settings_html[] PROGMEM = R"rawliteral(
       .options p:hover {
         background-color: #f0f0f0;
       }
-    }
-
-    .navbar .home {
-      font-size: 30px;
-    }
-
+    }  
+   
   </style>
 </head>
 <body>
@@ -1722,22 +1751,25 @@ const char settings_html[] PROGMEM = R"rawliteral(
         <tr>
           <td>Min:</td>     
           <td><div class="number-input">
-            <button onclick="decrement('min')">&#706;</button>
+            <button class="changebtn" onclick="decrement('min')">&#706;</button>
             <input type="number" id="min" name="min" min="0" max="15" value="10">
-            <button onclick="increment('min')">&#707;</button>              
+            <button class="changebtn" onclick="increment('min')">&#707;</button>              
           </div><td>
         </tr> 
 
         <tr>
           <td>Max:</td>     
           <td><div class="number-input">
-            <button onclick="decrement('max')">&#706;</button>
+            <button class="changebtn" onclick="decrement('max')">&#706;</button>
             <input type="number" id="max" name="max" min="0" max="99" value="15">
-            <button onclick="increment('max')">&#707;</button>              
+            <button class="changebtn" onclick="increment('max')">&#707;</button>              
           </div><td>
         </tr>
       </tbody>
       </table>
+
+      <label for="swap">Change Sides:</label>
+      <button class="swap" id="gameclock-swap" onclick="updateServer(this)">Swap</button>
         
     </div>  
 
@@ -1850,8 +1882,8 @@ const char settings_html[] PROGMEM = R"rawliteral(
         <span class="category-arrow">&#10148;</span>
       </div>
       <div id="info-options" class="options">
-        <p>User Interface: V0.2</p>
-        <p>Software: V0.1</p>
+        <p>User Interface: V2.1.0-alpha</p>
+        <p>Software: V1.1.0-alpha</p>
       </div>
     </div>
   </div>
@@ -2492,6 +2524,8 @@ const char practice_html[] PROGMEM = R"rawliteral(
             updateServer(type);
         } else if (type === "startpoint") {
             updateServer(type);
+        } else if (type == "endtimeout") {
+            updateServer(type);
         }
         else {
             showPopup(element);
@@ -2624,24 +2658,27 @@ const char practice_html[] PROGMEM = R"rawliteral(
         document.getElementById("team1-max-length").innerHTML = response.other.maximumLength;
         document.getElementById("team2-max-length").innerHTML = response.other.maximumLength;
 
-        // Update game clock
-        var minutes = gameClock.minutes;
-        var seconds = gameClock.seconds;
+        // Update display
+        var dispMinutes = gameClock.displayedMinutes;
+        var dispSeconds = gameClock.displayedSeconds;
 
-        if (minutes < 10) {
-            minutes = "0" + String(minutes);
+        if (dispMinutes < 10) {
+            dispMinutes = "0" + String(dispMinutes);
         }
-        if (seconds < 10) {
-            seconds = "0" + String(seconds);
+        if (dispSeconds < 10) {
+            dispSeconds = "0" + String(dispSeconds);
         }
 
-        document.getElementById('gameclock-text').innerHTML = minutes + ":" + seconds; 
+        document.getElementById('gameclock-text').innerHTML = dispMinutes + ":" + dispSeconds;        
 
         // Update color
         document.getElementById("gameclock-text").style.color = gameClock.color.hex;
         
         // Update buttons
         var text = gameClock.paused ? 'RESUME' : 'TIMEOUT';
+        if (gameClock.timeout) {
+            text = 'END TIMEOUT'
+        }
         document.getElementById('time-button').innerHTML = text;
 
         text = gameClock.middleOfPoint ? 'ENDPOINT' : 'START POINT';
@@ -2655,4 +2692,5 @@ const char practice_html[] PROGMEM = R"rawliteral(
   </script>
 </body>
 </html>
+
 )rawliteral";

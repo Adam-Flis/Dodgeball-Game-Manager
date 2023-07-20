@@ -55,13 +55,17 @@ void GameClock::setColon() {
     pixels.setPixelColor(29, pixels.Color(color[0], color[1], color[2]));
 }
 
-void GameClock::display() {
+void GameClock::display() {      
     if (!blink) {
-        setDisplay(min / 10, 3);
-        setDisplay(min % 10, 2);
+        if (official) {
+            dispMin = 99 - toMin;
+            dispSec = 59 - toSec;
+        }
+        setDisplay(dispMin / 10, 3);
+        setDisplay(dispMin % 10, 2);
         setColon();
-        setDisplay(sec / 10, 1);
-        setDisplay(sec % 10, 0);
+        setDisplay(dispSec / 10, 1);
+        setDisplay(dispSec % 10, 0);
         pixels.show();
     } else { off(); }
 }
@@ -71,24 +75,73 @@ void GameClock::off() {
     pixels.show();
 }
 
+int GameClock::getDisplaySec() {
+    return dispSec;
+}
+
+int GameClock::getDisplayMin() {
+    return dispMin;
+}
+
+// Time functions
 void GameClock::setSec(int val) {
-    sec = val;
+    clkSec = val;
+    if (!timeout) dispSec = val;
     display();
 }
 
 void GameClock::setMin(int val) {
-    min = val;
-    display(); 
+    clkMin = val;
+    if (!timeout) dispMin = val;
+    display();
 }
 
 int GameClock::getSec() {
-    return sec;
+    return clkSec;
 }
 
 int GameClock::getMin() {
-    return min;
+    return clkMin;
 }
 
+// Timeout functions
+void GameClock::setTimeoutSec(int val) {
+    toSec = val;
+    if (timeout) dispSec = val;
+    display();
+}
+
+void GameClock::setTimeoutMin(int val) {
+    toMin = val;
+    if (timeout) dispMin = val;
+    display();
+}
+
+int GameClock::getTimeoutSec() {
+    return toSec;
+}
+
+int GameClock::getTimeoutMin() {
+    return toMin;
+}
+
+bool GameClock::getTimeout() {
+    return timeout;
+}
+
+void GameClock::setTimeout(bool val) {
+    timeout = val;
+    if (timeout) {
+        dispSec = toSec;
+        dispMin = toMin;
+    } else {
+        dispSec = clkSec;
+        dispMin = clkMin;
+    }
+    display();
+}
+
+// Timer functions
 unsigned long GameClock::getTimer() {
     return timer;
 }
@@ -97,15 +150,31 @@ void GameClock::resetTimer() {
     timer = millis();
 }
 
-void GameClock::decrement(){
-    sec--;
-    if (sec < 0){
-        min--;
-        sec = 59;
-    }
-    if (min < 0){
-        min = 0;
-        sec = 0;
+void GameClock::decrement(){  
+    if (timeout) {
+        toSec--;
+        if (toSec < 0){
+            toMin--;
+            toSec = 59;
+        }
+        if (toMin < 0){
+            toMin = 0;
+            toSec = 0;
+        }
+        dispSec = toSec;
+        dispMin = toMin;
+    } else {
+        clkSec--;
+        if (clkSec < 0){
+            clkMin--;
+            clkSec = 59;
+        }
+        if (clkMin < 0){
+            clkMin = 0;
+            clkSec = 0;
+        }
+        dispSec = clkSec;
+        dispMin = clkMin;
     }
     display();
 }
@@ -179,30 +248,46 @@ String GameClock::getName() {
 // Update functions
 void GameClock::updateState(String type, String value) {
     if (type == "pause") {
-        pause();
+        gameClk.pause();
         team1.pause();
         team2.pause();
-        buzzer.run(3);
+        buzzer1.play(3);
+        buzzer2.play(3);
     } else if (type == "resume") {
-        unpause();
+        gameClk.unpause();
         team1.unpause();
         team2.unpause();
-        buzzer.run(3);
-    } else if (type == "timeout") {
+        buzzer1.play(3);
+        buzzer2.play(3);
+    } else if (type == "timeout" && value != "close") {
+        timeout = true;
+        official = false;
         if (value == "team1") {
             team1.subTimeout();
             team2.reset();
+            gameClk.setTimeoutMin(0);
+            gameClk.setTimeoutSec(30);
         } else if (value == "team2") {
             team2.subTimeout();
             team1.reset();
+            gameClk.setTimeoutMin(0);
+            gameClk.setTimeoutSec(30);
         } else if (value == "official") {            
-            pause();          
-            team1.pause();
             team1.reset();
-            team2.pause();            
             team2.reset();
+            official = true;
+            gameClk.setTimeoutMin(99);
+            gameClk.setTimeoutSec(59);
         }
-    } else if (type == "endpoint" && value != "close") {
+        gameClk.unpause();
+    } else if (type == "endtimeout") {
+        timeout = false;
+        official = false;
+        gameClk.pause();
+        gameClk.setMin(clkMin);
+        gameClk.setSec(clkSec);
+    }
+    else if (type == "endpoint" && value != "close") {
         if (value == "team1") {
             team1.addPoint();
         } else if (value == "team2") {
@@ -210,7 +295,8 @@ void GameClock::updateState(String type, String value) {
         }
         midPoint = false;
     } else if (type == "startpoint") {
-        buzzer.run(3);
+        buzzer1.play(3);
+        buzzer2.play(3);
         midPoint = true;
         unpause();
     }
@@ -230,6 +316,15 @@ void GameClock::updateState(String type, String value) {
         setSec(val);
     } else if (type == "half") {
         setHalf(value);
-    } 
+    } else if (type == "swap") {
+        int temp = team1.getPin();
+        team1.setPin(team2.getPin());
+        team2.setPin(temp);
+        team1.display();
+        team2.display();
+        temp = buzzer1.getPin();
+        buzzer1.setPin(buzzer2.getPin()); 
+        buzzer2.setPin(temp);
+    }
     updateClient();
 }
