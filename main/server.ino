@@ -17,38 +17,52 @@
 
 #include "main.hpp"
 
-void startServer(){  
-  
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(80);
+
+// Create an Event Source on /events
+AsyncEventSource events("/events"); 
+
+// Network credentials
+const char* ssid = "NCDAShotclock";
+const char* password = "Dodgeball";
+
+void initWifi() {
   // Connect to Wi-Fi
   WiFi.softAP(ssid, password, 1, 0, 4);  
   IPAddress IP = WiFi.softAPIP();
 
   Serial.println("Soft APIP: " + IP.toString()); // APIP = 192.168.4.1 
   Serial.println("Local IP: " + WiFi.localIP().toString()); // IP = 0.0.0.0
+}
 
+void startServer(){  
+
+  initWifi(); // Initialize Wi-Fi
+  
   // Handle requests for index html
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", index_html);
+    request->send(SD, "/index.html", "text/html");
   });
 
   // Handle requests for team1 html
   server.on("/team1", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", shotclock_html);
+    request->send(SD, "/shotclock.html", "text/html");
   });
 
   // Handle requests for team2 html
   server.on("/team2", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", shotclock_html);
+    request->send(SD, "/shotclock.html", "text/html");
   });
 
   // Handle requests for game clock html
   server.on("/gameclock", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", gameclock_html);
+    request->send(SD, "/gameclock.html", "text/html");
   });
 
   // Handle requests for settings html
   server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", settings_html);
+    request->send(SD, "/settings.html", "text/html");
   });
 
   // // Handle requests for new game html
@@ -58,7 +72,7 @@ void startServer(){
 
   // Handle requests for practice html
   server.on("/practice", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", practice_html);
+    request->send(SD, "/practice.html", "text/html");
   });
 
   // Handle requests for updateServer call
@@ -86,6 +100,7 @@ void startServer(){
     request->send(200, "text/plain", "OK");
   });
 
+  server.serveStatic("/", SD, "/");
   Serial.println("Requests configured");
 
   // Handle Web Server Events
@@ -95,10 +110,3 @@ void startServer(){
   server.begin(); // Start server
   Serial.println("Server started");
 }
-
-
-
-
-
-
-

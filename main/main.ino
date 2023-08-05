@@ -48,22 +48,12 @@ long smallNums[] = {
 
 bool update = false;
 
-// Network credentials
-const char* ssid = "NCDAShotclock";
-const char* password = "Dodgeball";
-
 // Class instances
 ShotClock team1;
 ShotClock team2;
 GameClock gameClk;
 Buzzer buzzer1;
 Buzzer buzzer2;
-
-// Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
-
-// Create an Event Source on /events
-AsyncEventSource events("/events"); 
 
 // Setup
 void setup() { 
@@ -79,12 +69,13 @@ void setup() {
     delay(100);
 
     // Configure buzzers
-    buzzer1.configure(18, OUTPUT);
-    buzzer2.configure(5, OUTPUT);
+    buzzer1.configure(15, OUTPUT);
+    buzzer2.configure(2, OUTPUT);
     Serial.println("Buzzers configured");
 
     delay(100);
 
+    initSDCard(); // Initialize SD card
     startServer(); // Start server
 
     delay(100);   
@@ -98,7 +89,7 @@ void setup() {
 
 // Loop that runs everything
 void loop() {
-
+    
     // Game clock
     if (millis() - gameClk.getTimer() >= 1000) { // 1 second has passed
         gameClk.resetTimer();
@@ -217,5 +208,5 @@ void loop() {
     buzzer1.update();
     buzzer2.update();
 
-    delay(10);
+    delay(20);
 }

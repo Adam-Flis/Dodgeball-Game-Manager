@@ -344,41 +344,43 @@
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
 
-    // Function to run on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      load();
-    });
+    loadEvents();
     
-    function load() {
+    function loadEvents() {
       const path = window.location.pathname;
       side = path.substring(path.lastIndexOf('/') + 1).toLowerCase().replace(/\s+/g, '');
-      source = new EventSource(`/events`);
-      source.addEventListener('update', events);
-      setTimeout(function() {  
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", `/updateServer?side=load`, true);    
-        xhr.send();        
-      }, 100);
 
-      // Get all input elements
-      var inputs = document.querySelectorAll('input');
+      if (!!window.EventSource) {
+        source = new EventSource(`/events`);
+        source.addEventListener('update', events);       
 
-      // Add event listeners to each input element
-      inputs.forEach(function(input) {
-        if (input.type != "checkbox") {       
-          // When the input receives focus, remove event listener
-          input.addEventListener('focus', function() {
-              source.removeEventListener('update', events);
-          });
+        // Get all input elements
+        var inputs = document.querySelectorAll('input');
 
-          // When the input loses focus, add event listener
-          input.addEventListener('blur', function() {
-              checkInput(input);              
-              source.addEventListener('update', events);
-              updateServer(input);
-          });
-        } 
-      });
+        // Add event listeners to each input element
+        inputs.forEach(function(input) {
+          if (input.type != "checkbox") {       
+            // When the input receives focus, remove event listener
+            input.addEventListener('focus', function() {
+                source.removeEventListener('update', events);
+            });
+
+            // When the input loses focus, add event listener
+            input.addEventListener('blur', function() {
+                checkInput(input);              
+                source.addEventListener('update', events);
+                updateServer(input);
+            });
+          } 
+        });
+        setTimeout(function() {  
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", `/updateServer?side=load`, true);    
+          xhr.send();        
+        }, 100);
+      } else {
+        window.alert("Your browser does not support Server-Sent Events. Please use a different browser.");
+      }      
     }                  
 
     // Settings page functions

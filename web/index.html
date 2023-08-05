@@ -18,7 +18,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>NCDA Digital Game Controller</title>
+  <title>Dodgeball Game Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
@@ -169,7 +169,7 @@
 <body>
   <div class="navbar">
     <button class="home" onclick="location.reload();">&#8962;</button>
-    <span class="title">NCDA Digital Game Controller</span>
+    <span class="title">Dodgeball Game Manager</span>
     <a href="/settings" class="link"><button class="settings-button">&#9965;</button></a>
   </div>
 
@@ -237,38 +237,38 @@
 
   <script>
     var side = "index";
-    var source;
 
-    // Function to run on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      load();
-    });
+    loadEvents();
 
-    function load() {
-      source = new EventSource(`/events`);
-      source.addEventListener('update', events);
-      setTimeout(function() {  
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", `/updateServer?side=load`, true);    
-        xhr.send();       
-      }, 100);
+    function loadEvents() {
+      if (!!window.EventSource) {
+        var source = new EventSource(`/events`);
+        source.addEventListener('update', events);       
 
-      // Get all input elements
-      var inputs = document.querySelectorAll('input');
+        // Get all input elements
+        var inputs = document.querySelectorAll('input');
 
-      // Add event listeners to each input element
-      inputs.forEach(function(input) {      
-        // When the input receives focus, remove event listener
-        input.addEventListener('focus', function() {
-            source.removeEventListener('update', events);
+        // Add event listeners to each input element
+        inputs.forEach(function(input) {      
+          // When the input receives focus, remove event listener
+          input.addEventListener('focus', function() {
+              source.removeEventListener('update', events);
+          });
+
+          // When the input loses focus, add event listener
+          input.addEventListener('blur', function() {            
+              source.addEventListener('update', events);
+              checkMinMax();
+          });      
         });
-
-        // When the input loses focus, add event listener
-        input.addEventListener('blur', function() {            
-            source.addEventListener('update', events);
-            checkMinMax();
-        });      
-      });
+        setTimeout(function() {  
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", `/updateServer?side=load`, true);    
+          xhr.send();       
+        }, 100);        
+      } else {
+        window.alert("Server-Sent Events is not supported on this browser!");
+      }      
     }
 
     function increment(inputId) {

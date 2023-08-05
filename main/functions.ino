@@ -123,4 +123,5 @@ String getData() {
 void updateClient() {
     String data = getData();
     events.send(data.c_str(), "update", millis());
+    //writeData("data.txt", data);
 }
