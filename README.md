@@ -1,5 +1,5 @@
 # Dodgeball Game Manager
-## NDA tournament at Ohio University 7/22
+## NDA tournament at Ohio University 7/22 / Toledo 8/5
 - [Instructions](https://docs.google.com/document/d/1FlVhUcZZ_hZuhlRXBhw4exsBqNgNxJDuXdmSlRYzH_s/edit?usp=sharing)
 
 ## Nationals at Ohio University 4/15-4/16
