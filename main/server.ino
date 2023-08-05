@@ -20,8 +20,8 @@
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-// Create an Event Source on /events
-AsyncEventSource events("/events"); 
+// Create a WebSocket server object on port 80
+AsyncWebSocket ws("/ws");
 
 // Network credentials
 const char* ssid = "NCDAShotclock";
@@ -34,6 +34,16 @@ void initWifi() {
 
   Serial.println("Soft APIP: " + IP.toString()); // APIP = 192.168.4.1 
   Serial.println("Local IP: " + WiFi.localIP().toString()); // IP = 0.0.0.0
+}
+
+void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
+    // A new client connected
+    Serial.println("WebSocket client connected");
+  } else if (type == WS_EVT_DISCONNECT) {
+    // A client disconnected
+    Serial.println("WebSocket client disconnected");
+  }
 }
 
 void startServer(){  
@@ -64,11 +74,6 @@ void startServer(){
   server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SD, "/settings.html", "text/html");
   });
-
-  // // Handle requests for new game html
-  // server.on("/newgame", HTTP_GET, [](AsyncWebServerRequest *request){
-  //   request->send_P(200, "text/html", newgame_html);
-  // });
 
   // Handle requests for practice html
   server.on("/practice", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -103,8 +108,9 @@ void startServer(){
   server.serveStatic("/", SD, "/");
   Serial.println("Requests configured");
 
-  // Handle Web Server Events
-  server.addHandler(&events);
+  // Set up WebSocket server and event handlers
+  ws.onEvent(onWebSocketEvent);
+  server.addHandler(&ws);
   Serial.println("Handlers configured");
 
   server.begin(); // Start server

@@ -237,39 +237,28 @@
 
   <script>
     var side = "index";
+    const socket = new WebSocket("ws://192.168.4.1/ws");
 
-    loadEvents();
+    socket.onopen = function(event) {
+        // WebSocket connection opened
+        console.log("WebSocket connection opened");
+    };
+    
+    socket.onmessage = function(event) {
+        // Handle incoming WebSocket data
+        update(event);
+    };
 
-    function loadEvents() {
-      if (!!window.EventSource) {
-        var source = new EventSource(`/events`);
-        source.addEventListener('update', events);       
+    socket.onclose = function(event) {
+        // WebSocket connection closed
+        console.log("WebSocket connection closed");
+      };
 
-        // Get all input elements
-        var inputs = document.querySelectorAll('input');
-
-        // Add event listeners to each input element
-        inputs.forEach(function(input) {      
-          // When the input receives focus, remove event listener
-          input.addEventListener('focus', function() {
-              source.removeEventListener('update', events);
-          });
-
-          // When the input loses focus, add event listener
-          input.addEventListener('blur', function() {            
-              source.addEventListener('update', events);
-              checkMinMax();
-          });      
-        });
-        setTimeout(function() {  
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", `/updateServer?side=load`, true);    
-          xhr.send();       
-        }, 100);        
-      } else {
-        window.alert("Server-Sent Events is not supported on this browser!");
-      }      
-    }
+    setTimeout(function() {  
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/updateServer?side=load`, true);    
+        xhr.send();     
+    }, 100);    
 
     function increment(inputId) {
       var input = document.getElementById(inputId);
@@ -326,7 +315,7 @@
     }
 
     // Add event listeners 
-    function events(e) {
+    function update(e) {
       var response = JSON.parse(e.data);
       var team1 = response.team1;
       var team2 = response.team2;
@@ -345,8 +334,12 @@
       }
 
       // Update shot clock timer
-      document.getElementById("min").value = response.other.minimumLength;
-      document.getElementById("max").value = response.other.maximumLength;      
+      if (!document.getElementById("min").matches(":focus")) {
+        document.getElementById("min").value = response.other.minimumLength;
+      }      
+      if (!document.getElementById("max").matches(":focus")) {
+        document.getElementById("max").value = response.other.maximumLength;
+      }
     }
 
   </script>

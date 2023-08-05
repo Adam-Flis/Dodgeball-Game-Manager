@@ -374,21 +374,28 @@
 
   <script>
 
-    loadEvents();
-  
-    function loadEvents() {
-        if (!!window.EventSource) {
-            var source = new EventSource(`/events`);
-            source.addEventListener('update', events);
-            setTimeout(function() {  
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", `/updateServer?side=load`, true);    
-                xhr.send();      
-            }, 100);  
-        } else {
-            window.alert("Your browser does not support Server-Sent Events. Please use a different browser.");
-        }              
-    } 
+    const socket = new WebSocket("ws://192.168.4.1/ws");
+
+    socket.onopen = function(event) {
+        // WebSocket connection opened
+        console.log("WebSocket connection opened");
+    };
+    
+    socket.onmessage = function(event) {
+        // Handle incoming WebSocket data
+        update(event);
+    };
+
+    socket.onclose = function(event) {
+        // WebSocket connection closed
+        console.log("WebSocket connection closed");
+      };
+
+    setTimeout(function() {  
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/updateServer?side=load`, true);    
+        xhr.send();     
+    }, 100);
 
     function button(element) {
         const type = element.innerHTML.toLowerCase().replace(" ", ""); 
@@ -478,7 +485,7 @@
         xhr.send();
       }
 
-    function events(e) {
+    function update(e) {
         var response = JSON.parse(e.data);
 
         var gameClock = response.gameClock;

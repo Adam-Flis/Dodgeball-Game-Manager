@@ -23,8 +23,8 @@
 // Create AsyncWebServer object on port 80
 extern AsyncWebServer server;
 
-// Create an Event Source on /events
-extern AsyncEventSource events;
+// Create a WebSocket server object on port 80
+extern AsyncWebSocket ws;
 
 void initWifi();
 void startServer();

@@ -398,7 +398,7 @@
         </select><br>
   
         <label for="color">Color:</label>
-        <input type="color" id="color" value="#ff0000"><br>
+        <input type="color" id="color" value="#ff0000" onchange="updateServer(this)"><br>
 
       </div>
     </div>
@@ -406,44 +406,28 @@
 
   <script>
     var side = "gameclock";
-    var source; 
+    const socket = new WebSocket("ws://192.168.4.1/ws");
+
+    socket.onopen = function(event) {
+        // WebSocket connection opened
+        console.log("WebSocket connection opened");
+    };
     
-    loadEvents();
-  
-    function loadEvents() {
-        if (!!window.EventSource) {
-            var source = new EventSource(`/events`);
-            source.addEventListener('update', events);
+    socket.onmessage = function(event) {
+        // Handle incoming WebSocket data
+        update(event);
+    };
 
-            // Get all input elements
-            var inputs = document.querySelectorAll('input');
+    socket.onclose = function(event) {
+        // WebSocket connection closed
+        console.log("WebSocket connection closed");
+      };
 
-            // Add event listeners to each input element
-            inputs.forEach(function(input) {
-                if (input.type != "checkbox") {       
-                    // When the input receives focus, remove event listener
-                    input.addEventListener('focus', function() {
-                        source.removeEventListener('update', events);
-                    });
-
-                    // When the input loses focus, add event listener
-                    input.addEventListener('blur', function() {
-                        checkInput(input);                
-                        source.addEventListener('update', events);
-                        updateServer(input);
-                    });
-                } 
-            });
-
-            setTimeout(function() {  
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", `/updateServer?side=load`, true);    
-                xhr.send();     
-            }, 100);
-        } else {
-            window.alert("Your browser does not support Server-Sent Events. Please use a different browser.");
-        }        
-    } 
+    setTimeout(function() {  
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/updateServer?side=load`, true);    
+        xhr.send();     
+    }, 100);
 
     function button(element) {
         const type = element.innerHTML.toLowerCase().replace(" ", ""); 
@@ -559,10 +543,10 @@
         var xhr = new XMLHttpRequest();        
         xhr.open("GET", `/updateServer?side=${side}&type=${str}&value=${value}`, true);    
         xhr.send();
-    }
+    }    
 
-    // Add event listeners 
-    function events(e) {
+    // Update webpage
+    function update(e) {
         var response = JSON.parse(e.data);
 
         var gameClock = response.gameClock;
@@ -570,8 +554,12 @@
         var team2 = response.team2;
 
         // Update game clock   
-        document.getElementById('minutes').value = gameClock.minutes;
-        document.getElementById('seconds').value = gameClock.seconds;
+        if (!document.getElementById('minutes').matches(':focus')) {
+            document.getElementById('minutes').value = gameClock.minutes;
+        }
+        if (!document.getElementById('seconds').matches(':focus')) {
+            document.getElementById('seconds').value = gameClock.seconds;
+        }
 
         // Update display
         var dispMinutes = gameClock.displayedMinutes;
@@ -626,11 +614,15 @@
         document.getElementById('team2-sc').innerHTML = team2.displayedCount;
 
         // Update half 
-        document.getElementById('half').value = gameClock.half;
+        if (!document.getElementById('half').matches(':focus')) {
+            document.getElementById('half').value = gameClock.half;
+        }
 
         // Update color
+        if (!document.getElementById('color').matches(':focus')) {
+            document.getElementById('color').value = gameClock.color.hex;
+        }
         document.getElementById("timer-text").style.color = gameClock.color.hex;
-        document.getElementById("color").value = gameClock.color.hex;
 
     }
 

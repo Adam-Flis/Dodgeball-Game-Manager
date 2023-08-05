@@ -24,6 +24,7 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncWebSocket.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 #include "HardwareSerial.h"

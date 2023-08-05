@@ -69,8 +69,8 @@ void setup() {
     delay(100);
 
     // Configure buzzers
-    buzzer1.configure(15, OUTPUT);
-    buzzer2.configure(2, OUTPUT);
+    buzzer1.configure(2, OUTPUT);
+    buzzer2.configure(15, OUTPUT);
     Serial.println("Buzzers configured");
 
     delay(100);
@@ -89,7 +89,7 @@ void setup() {
 
 // Loop that runs everything
 void loop() {
-    
+
     // Game clock
     if (millis() - gameClk.getTimer() >= 1000) { // 1 second has passed
         gameClk.resetTimer();
