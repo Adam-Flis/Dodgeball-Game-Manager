@@ -122,5 +122,6 @@ String getData() {
 
 void updateClient() {
     String data = getData();
-    events.send(data.c_str(), "update", millis());
+    ws.textAll(data);
+    //writeData("data.txt", data);
 }

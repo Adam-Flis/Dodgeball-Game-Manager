@@ -304,22 +304,22 @@
       </div>
       <div class="settings-content">
         <label for="name">Name:</label>
-        <input type="text" id="name" placeholder="Enter name"><br>
+        <input type="text" id="name" placeholder="Enter name" onchange="updateServer(this)"><br>
   
         <label for="timer">Shot Clock:</label>
-        <input type="number" id="timer" min="0" max="99" value="10"><br>
+        <input type="number" id="timer" min="0" max="99" value="10" onchange="updateServer(this)"><br>
   
         <label for="players">Players:</label>
-        <input type="number" id="players" min="0" max="99" value="0"><br>
+        <input type="number" id="players" min="0" max="99" value="0" onchange="updateServer(this)"><br>
   
         <label for="timeouts">Timeouts:</label>
-        <input type="number" id="timeouts" min="0" max="99" value="0"><br>
+        <input type="number" id="timeouts" min="0" max="99" value="0" onchange="updateServer(this)"><br>
   
         <label for="points">Points:</label>
-        <input type="number" id="points" min="0" max="99" value="0"><br>
+        <input type="number" id="points" min="0" max="99" value="0" onchange="updateServer(this)"><br>
   
         <label for="color">Color:</label>
-        <input type="color" id="color" value="#ff0000"><br>
+        <input type="color" id="color" value="#ff0000" onchange="updateServer(this)"><br>
   
         <div class="slider-container" style="display: flex; align-items: center;">
           <label for="direction">Count Direction:</label>
@@ -344,42 +344,31 @@
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
 
-    // Function to run on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      load();
-    });
+    const path = window.location.pathname;
+    side = path.substring(path.lastIndexOf('/') + 1).toLowerCase().replace(/\s+/g, '');
+
+    const socket = new WebSocket("ws://192.168.4.1/ws");
+
+    socket.onopen = function(event) {
+        // WebSocket connection opened
+        console.log("WebSocket connection opened");
+    };
     
-    function load() {
-      const path = window.location.pathname;
-      side = path.substring(path.lastIndexOf('/') + 1).toLowerCase().replace(/\s+/g, '');
-      source = new EventSource(`/events`);
-      source.addEventListener('update', events);
-      setTimeout(function() {  
+    socket.onmessage = function(event) {
+        // Handle incoming WebSocket data
+        update(event);
+    };
+
+    socket.onclose = function(event) {
+        // WebSocket connection closed
+        console.log("WebSocket connection closed");
+    };
+
+    setTimeout(function() {  
         var xhr = new XMLHttpRequest();
         xhr.open("GET", `/updateServer?side=load`, true);    
-        xhr.send();        
-      }, 100);
-
-      // Get all input elements
-      var inputs = document.querySelectorAll('input');
-
-      // Add event listeners to each input element
-      inputs.forEach(function(input) {
-        if (input.type != "checkbox") {       
-          // When the input receives focus, remove event listener
-          input.addEventListener('focus', function() {
-              source.removeEventListener('update', events);
-          });
-
-          // When the input loses focus, add event listener
-          input.addEventListener('blur', function() {
-              checkInput(input);              
-              source.addEventListener('update', events);
-              updateServer(input);
-          });
-        } 
-      });
-    }                  
+        xhr.send();     
+    }, 100);               
 
     // Settings page functions
     function openSettings() {
@@ -433,7 +422,7 @@
     }
 
     // Add event listeners 
-    function events(e) {
+    function update(e) {
         var response = JSON.parse(e.data);
         var team;
 
@@ -455,7 +444,9 @@
         document.getElementById("navbar-title").innerHTML = title;   
         
         // Update name
-        document.getElementById("name").value = team.name;
+        if (!document.getElementById("name").matches(":focus")) {
+          document.getElementById("name").value = team.name;
+        }        
         
         // Update pause
         var paused = team.paused;
@@ -468,8 +459,11 @@
         document.getElementById("pause").innerHTML = text;               
 
         // Update shot clock
+        if (!document.getElementById("timer").matches(":focus")) {
+          document.getElementById("timer").value = team.displayedCount;          
+        }
         document.getElementById("timer-text").innerHTML = team.displayedCount;
-        document.getElementById("timer").value = team.displayedCount;
+        
 
         // Update min length
         document.getElementById("min-length").innerHTML = response.other.minimumLength;
@@ -485,18 +479,26 @@
         }              
         
         // Update points
-        document.getElementById("points").value = team.points;
+        if (!document.getElementById("points").matches(":focus")) {
+          document.getElementById("points").value = team.points;
+        }
         
         // Update players
-        document.getElementById("players").value = team.playersLeft;
+        if (!document.getElementById("players").matches(":focus")) {
+          document.getElementById("players").value = team.playersLeft;
+        }
 
         // Update timeouts
-        document.getElementById("timeouts").value = team.timeoutsLeft;
+        if (!document.getElementById("timeouts").matches(":focus")) {
+          document.getElementById("timeouts").value = team.timeoutsLeft;
+        }
 
         // Update color
+        if (!document.getElementById("color").matches(":focus")) {          
+          document.getElementById("color").value = team.color.hex;
+        }        
         document.getElementById("timer-text").style.color = team.color.hex;
-        document.getElementById("color").value = team.color.hex;
-
+        
         // Update direction
         if (team.countDirection === "down") {
           document.getElementById("direction").checked = false;

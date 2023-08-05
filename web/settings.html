@@ -287,8 +287,8 @@
     </div>
     <div id="main-options" class="options">
       <label>Game Clock:</label>
-      <input type="number" id="gameclock-minutes" min="0" max="99" value="25" style="width: 40px;"> :
-      <input type="number" id="gameclock-seconds" min="0" max="59" value="0" style="width: 40px;"><br>
+      <input type="number" id="gameclock-minutes" min="0" max="99" value="25" style="width: 40px;" onchange="updateServer(this)"> :
+      <input type="number" id="gameclock-seconds" min="0" max="59" value="0" style="width: 40px;" onchange="updateServer(this)"><br>
 
       <label for="gameclock-half">Half:</label>
         <select id="gameclock-half" onchange="updateServer(this)">
@@ -298,7 +298,7 @@
         </select><br>
 
       <label for="gameclock-color">Color:</label>
-      <input type="color" id="gameclock-color" value="#ff0000"><br>
+      <input type="color" id="gameclock-color" value="#ff0000" onchange="updateServer(this)"><br>
 
       <table>
         <tbody>
@@ -333,22 +333,22 @@
     </div>
     <div id="team1-options" class="options">
       <label for="team1-name">Name:</label>
-      <input type="text" id="team1-name" placeholder="Enter name"><br>
+      <input type="text" id="team1-name" placeholder="Enter name" onchange="updateServer(this)"><br>
 
       <label for="team1-timer">Shot Clock:</label>
-      <input type="number" id="team1-timer" min="0" max="99" value="10"><br>
+      <input type="number" id="team1-timer" min="0" max="99" value="10" onchange="updateServer(this)"><br>
 
       <label for="team1-players">Players:</label>
-      <input type="number" id="team1-players" min="0" max="99" value="0"><br>
+      <input type="number" id="team1-players" min="0" max="99" value="0" onchange="updateServer(this)"><br>
 
       <label for="team1-timeouts">Timeouts:</label>
-      <input type="number" id="team1-timeouts" min="0" max="99" value="0"><br>
+      <input type="number" id="team1-timeouts" min="0" max="99" value="0" onchange="updateServer(this)"><br>
 
       <label for="team1-points">Points:</label>
-      <input type="number" id="team1-points" min="0" max="99" value="0"><br>
+      <input type="number" id="team1-points" min="0" max="99" value="0" onchange="updateServer(this)"><br>
 
       <label for="team1-color">Color:</label>
-      <input type="color" id="team1-color" value="#ff0000"><br>
+      <input type="color" id="team1-color" value="#ff0000" onchange="updateServer(this)"><br>
 
       <div class="slider-container" style="display: flex; align-items: center;">
         <label for="team1-direction">Count Direction:</label>
@@ -370,22 +370,22 @@
     </div>
     <div id="team2-options" class="options">
       <label for="team2-name">Name:</label>
-      <input type="text" id="team2-name" placeholder="Enter name"><br>
+      <input type="text" id="team2-name" placeholder="Enter name" onchange="updateServer(this)"><br>
 
       <label for="team2-timer">Shot Clock:</label>
-      <input type="number" id="team2-timer" min="0" max="99" value="10"><br>
+      <input type="number" id="team2-timer" min="0" max="99" value="10" onchange="updateServer(this)"><br>
 
       <label for="team2-players">Players:</label>
-      <input type="number" id="team2-players" min="0" max="99" value="0"><br>
+      <input type="number" id="team2-players" min="0" max="99" value="0" onchange="updateServer(this)"><br>
 
       <label for="team2-timeouts">Timeouts:</label>
-      <input type="number" id="team2-timeouts" min="0" max="99" value="0"><br>
+      <input type="number" id="team2-timeouts" min="0" max="99" value="0" onchange="updateServer(this)"><br>
 
       <label for="team2-points">Points:</label>
-      <input type="number" id="team2-points" min="0" max="99" value="0"><br>
+      <input type="number" id="team2-points" min="0" max="99" value="0" onchange="updateServer(this)"><br>
 
       <label for="team2-color">Color:</label>
-      <input type="color" id="team2-color" value="#ff0000"><br>
+      <input type="color" id="team2-color" value="#ff0000" onchange="updateServer(this)"><br>
 
       <div class="slider-container" style="display: flex; align-items: center;">
         <label for="team2-direction">Count Direction:</label>
@@ -443,50 +443,29 @@
   </div>
 
   <script>
-    var source;
 
-    // Function to run on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      load();
-    });
+    const socket = new WebSocket("ws://192.168.4.1/ws");
 
-    function load() {
-        source = new EventSource(`/events`);
-        source.addEventListener('update', events);
-        setTimeout(function() {
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", `/updateServer?side=load`, true);    
-          xhr.send();        
-        }, 100);
+    socket.onopen = function(event) {
+        // WebSocket connection opened
+        console.log("WebSocket connection opened");
+    };
+    
+    socket.onmessage = function(event) {
+        // Handle incoming WebSocket data
+        update(event);
+    };
 
-        // Get all input elements
-        var inputs = document.querySelectorAll('input');
+    socket.onclose = function(event) {
+        // WebSocket connection closed
+        console.log("WebSocket connection closed");
+      };
 
-        // Add event listeners to each input element
-        inputs.forEach(function(input) {
-        if (input.type != "checkbox") {       
-            // When the input receives focus, remove event listener
-            input.addEventListener('focus', function() {
-                source.removeEventListener('update', events);
-            });
-
-            // When the input loses focus, add event listener
-            if (input.id === "min" || input.id === "max") {
-              input.addEventListener('blur', function() {            
-                source.addEventListener('update', events);
-                checkMinMax();
-              }); 
-            } else {
-              input.addEventListener('blur', function() {
-                checkInput(input);                
-                source.addEventListener('update', events);
-                updateServer(input);
-              });              
-            }
-            
-        } 
-        });
-    } 
+    setTimeout(function() {  
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", `/updateServer?side=load`, true);    
+        xhr.send();     
+    }, 100);
 
     function toggleOptions(categoryId, element) {
       var options = document.getElementById(categoryId + '-options');
@@ -598,7 +577,7 @@
     }
 
     // Add event listeners 
-    function events(e) {
+    function update(e) {
       var response = JSON.parse(e.data);
       
       var gameClock = response.gameClock;
@@ -610,18 +589,31 @@
       var minutes = gameClock.minutes;
       var seconds = gameClock.seconds;
 
-      document.getElementById('gameclock-minutes').value = minutes;
-      document.getElementById('gameclock-seconds').value = seconds;
+      if (!document.getElementById('gameclock-minutes').matches(':focus')) {
+        document.getElementById('gameclock-minutes').value = minutes;
+      }
+
+      if (!document.getElementById('gameclock-seconds').matches(':focus')) {
+        document.getElementById('gameclock-seconds').value = seconds;
+      }
 
       // Update half 
-      document.getElementById('gameclock-half').value = gameClock.half;
+      if (!document.getElementById('gameclock-half').matches(':focus')) {
+        document.getElementById('gameclock-half').value = gameClock.half;
+      }
 
       // Update game clock color
-      document.getElementById("gameclock-color").value = gameClock.color.hex;
+      if (!document.getElementById('gameclock-color').matches(':focus')) {
+        document.getElementById('gameclock-color').value = gameClock.color.hex;
+      }
 
       // Update min/max
-      document.getElementById('min').value = response.other.minimumLength;
-      document.getElementById('max').value = response.other.maximumLength;
+      if (!document.getElementById('min').matches(':focus')) {
+        document.getElementById('min').value = response.other.minimumLength;
+      }
+      if (!document.getElementById('max').matches(':focus')) {
+        document.getElementById('max').value = response.other.maximumLength;
+      }
 
       // Team 1
       // Update name
@@ -630,22 +622,34 @@
       } else {
         document.getElementById("team1-title").innerHTML = team1.side + ": " + team1.name;
       }
-      document.getElementById("team1-name").value = team1.name;
+      if (!document.getElementById('team1-name').matches(':focus')) {
+        document.getElementById("team1-name").value = team1.name;
+      }
 
       // Update shot clock
-      document.getElementById("team1-timer").value = team1.displayedCount;
+      if (!document.getElementById('team1-timer').matches(':focus')) {
+        document.getElementById("team1-timer").value = team1.displayedCount;
+      }
 
       // Update points
-      document.getElementById("team1-points").value = team1.points;
+      if (!document.getElementById('team1-points').matches(':focus')) {
+        document.getElementById("team1-points").value = team1.points;
+      }
         
       // Update players
-      document.getElementById("team1-players").value = team1.playersLeft;
+      if (!document.getElementById('team1-players').matches(':focus')) {
+        document.getElementById("team1-players").value = team1.playersLeft;
+      }
 
       // Update timeouts
-      document.getElementById("team1-timeouts").value = team1.timeoutsLeft;
+      if (!document.getElementById('team1-timeouts').matches(':focus')) {
+        document.getElementById("team1-timeouts").value = team1.timeoutsLeft;
+      }
 
       // Update color
-      document.getElementById("team1-color").value = team1.color.hex;
+      if (!document.getElementById('team1-color').matches(':focus')) {
+        document.getElementById("team1-color").value = team1.color.hex;
+      }
 
       // Update direction
       if (team1.countDirection === "down") {
@@ -661,22 +665,34 @@
       } else {
         document.getElementById("team2-title").innerHTML = team2.side + ": " + team2.name;
       }
-      document.getElementById("team2-name").value = team2.name;
+      if (!document.getElementById('team2-name').matches(':focus')) {
+        document.getElementById("team2-name").value = team2.name;
+      }
 
       // Update shot clock
-      document.getElementById("team2-timer").value = team2.displayedCount;
+      if (!document.getElementById('team2-timer').matches(':focus')) {
+        document.getElementById("team2-timer").value = team2.displayedCount;
+      }
 
       // Update points
-      document.getElementById("team2-points").value = team2.points;
+      if (!document.getElementById('team2-points').matches(':focus')) {
+        document.getElementById("team2-points").value = team2.points;
+      }
         
       // Update players
-      document.getElementById("team2-players").value = team2.playersLeft;
+      if (!document.getElementById('team2-players').matches(':focus')) {
+        document.getElementById("team2-players").value = team2.playersLeft;
+      }
 
       // Update timeouts
-      document.getElementById("team2-timeouts").value = team2.timeoutsLeft;
+      if (!document.getElementById('team2-timeouts').matches(':focus')) {
+        document.getElementById("team2-timeouts").value = team2.timeoutsLeft;
+      }
 
       // Update color
-      document.getElementById("team2-color").value = team2.color.hex;
+      if (!document.getElementById('team2-color').matches(':focus')) {
+        document.getElementById("team2-color").value = team2.color.hex;
+      }
 
       // Update direction
       if (team2.countDirection === "down") {

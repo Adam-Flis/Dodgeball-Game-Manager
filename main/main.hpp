@@ -24,10 +24,17 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncWebSocket.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 #include "HardwareSerial.h"
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
 
+#include "functions.hpp"
+#include "server.hpp"
+#include "sd.hpp"
 #include "shotClock.hpp"
 #include "gameClock.hpp"
 #include "buzzer.hpp"
@@ -35,31 +42,18 @@
 extern long largeNums[];
 extern long smallNums[];
 
-void startServer();
-void updateIndex(String min, String max);
-
-String getData();
-String rgbToHex(int r, int g, int b);
-void updateClient();
-
-extern const char* ssid;
-extern const char* password;
-
-// Create AsyncWebServer object on port 80
-extern AsyncWebServer server;
-
+// Class instances
 extern ShotClock team1;
 extern ShotClock team2;
 extern GameClock gameClk;
 extern Buzzer buzzer1;
 extern Buzzer buzzer2;
-extern AsyncEventSource events;
 
-extern const char index_html[];
-extern const char gameclock_html[];
-extern const char shotclock_html[];
-extern const char settings_html[];
+//extern const char index_html[];
+//extern const char gameclock_html[];
+//extern const char shotclock_html[];
+//extern const char settings_html[];
 //extern const char newgame_html[];
-extern const char practice_html[];
+//extern const char practice_html[];
 
 #endif
