@@ -23,11 +23,11 @@
 class Buzzer {
     private:
         bool buzzer = false;
-        int pin;
+        uint8_t pin;
         float runTime = 0;
         unsigned long timer = 0;
     public:
-        void configure(int pin_, uint8_t mode);
+        void configure(uint8_t pin_, uint8_t mode);
         void toggle();
         bool state();
         void on();
@@ -38,8 +38,8 @@ class Buzzer {
         void play(float duration);
         void update();
 
-        int getPin();
-        void setPin(int pin_);
+        uint8_t getPin();
+        void setPin(uint8_t pin_);
 };
 
 #endif

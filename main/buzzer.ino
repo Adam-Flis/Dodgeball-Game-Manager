@@ -17,7 +17,7 @@
 
 #include "main.hpp"
 
-void Buzzer::configure(int pin_, uint8_t mode) {
+void Buzzer::configure(uint8_t pin_, uint8_t mode) {
     pin = pin_;
     pinMode(pin, mode);
 }
@@ -67,10 +67,10 @@ void Buzzer::update() {
     }
 }
 
-void Buzzer::setPin(int pin_) {
+void Buzzer::setPin(uint8_t  pin_) {
     pin = pin_;
 }
 
-int Buzzer::getPin() {
+uint8_t Buzzer::getPin() {
     return pin;
 }
