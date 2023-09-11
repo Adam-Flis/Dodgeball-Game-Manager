@@ -19,18 +19,13 @@
 #define MAIN_HPP
 
 #include <Adafruit_NeoPixel.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncWebSocket.h>
-#include <SPIFFS.h>
 #include <ArduinoJson.h>
-#include "HardwareSerial.h"
-#include "FS.h"
-#include "SD.h"
-#include "SPI.h"
+#include <FS.h>
+#include <SD.h>
 
 #include "functions.hpp"
 #include "server.hpp"

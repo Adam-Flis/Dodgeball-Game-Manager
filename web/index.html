@@ -219,14 +219,14 @@
         <td>
           <div class="number-input">
             <button onclick="decrement('min')" style="margin-right: -20px">&#706;</button>
-            <input type="number" id="min" name="min" min="0" max="15" value="10">
+            <input type="number" id="min" name="min" min="0" max="15" value="10" onchange="checkMinMax()">
             <button onclick="increment('min')" style="margin-left: -20px">&#707;</button>              
           </div>
         </td>
         <td>
           <div class="number-input">
             <button onclick="decrement('max')" style="margin-right: -20px">&#706;</button>
-            <input type="number" id="max" name="max" min="0" max="99" value="15">
+            <input type="number" id="max" name="max" min="0" max="99" value="15" onchange="checkMinMax()">
             <button onclick="increment('max')" style="margin-left: -20px">&#707;</button>  
           </div>
         </td>

@@ -19,25 +19,25 @@
 
 void initSDCard(){
   if(!SD.begin()){
-    Serial.println("Card Mount Failed");
+    Serial.println(F("Card Mount Failed"));
     return;
   }
   uint8_t cardType = SD.cardType();
 
   if(cardType == CARD_NONE){
-    Serial.println("No SD card attached");
+    Serial.println(F("No SD card attached"));
     return;
   }
 
-  Serial.print("SD Card Type: ");
+  Serial.print(F("SD Card Type: "));
   if(cardType == CARD_MMC){
-    Serial.println("MMC");
+    Serial.println(F("MMC"));
   } else if(cardType == CARD_SD){
-    Serial.println("SDSC");
+    Serial.println(F("SDSC"));
   } else if(cardType == CARD_SDHC){
-    Serial.println("SDHC");
+    Serial.println(F("SDHC"));
   } else {
-    Serial.println("UNKNOWN");
+    Serial.println(F("UNKNOWN"));
   }
   uint64_t cardSize = SD.cardSize() / (1024 * 1024);
   Serial.printf("SD Card Size: %lluMB\n", cardSize);
@@ -46,13 +46,13 @@ void initSDCard(){
 void writeData(String fileName, String data) {
   File file = SD.open("/"+fileName, FILE_WRITE);
   if(!file){
-    Serial.println("Failed to open file for writing");
+    Serial.println(F("Failed to open file for writing"));
     return;
   }
   if(file.print(data)){
-    Serial.println("File written");
+    Serial.println(F("File written"));
   } else {
-    Serial.println("Write failed");
+    Serial.println(F("Write failed"));
   }
   file.close();
 }
@@ -60,10 +60,10 @@ void writeData(String fileName, String data) {
 void readData(String fileName) {
     File file = SD.open(fileName);
     if(!file){
-        Serial.println("Failed to open file for reading");
+        Serial.println(F("Failed to open file for reading"));
         return;
     }
-    Serial.println("File Content:");
+    Serial.println(F("File Content:"));
     while(file.available()){
         Serial.write(file.read());
     }

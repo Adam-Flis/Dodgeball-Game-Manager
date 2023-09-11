@@ -22,7 +22,7 @@
 
 class GameClock {
     private:
-        int dispMin = 25,
+        uint8_t dispMin = 25,
             dispSec = 0,
             timeDelta = 0,
             toMin = 0,
@@ -30,44 +30,45 @@ class GameClock {
             clkMin = 25,
             clkSec = 0;
         unsigned long timer = millis();
-        int color[3] = {255, 0, 0};
+        uint8_t color[3] = {255, 0, 0};
         bool paused = true,
              blink = false,
              midPoint = false,
              timeout = false,
              official = false;
         String name = "",
+               tournamentName = "",
                half = "1st";
         Adafruit_NeoPixel pixels = Adafruit_NeoPixel(58, NULL, NEO_GRB + NEO_KHZ800);
         
     public:
-        void configure(int pin, String str);
+        void configure(uint8_t pin, String str);
         
         // Color functions
-        void setColor(int red, int green, int blue);
-        int getRed();
-        int getGreen();
-        int getBlue();
+        void setColor(uint8_t red, uint8_t green, uint8_t blue);
+        uint8_t getRed();
+        uint8_t getGreen();
+        uint8_t getBlue();
 
         // Display functions
-        void setDisplay(int num, int segment);
+        void setDisplay(uint8_t num, uint8_t segment);
         void setColon();
         void display();
         void off();
-        int getDisplaySec();
-        int getDisplayMin();        
+        uint8_t getDisplaySec();
+        uint8_t getDisplayMin();        
         
         // Time functions
-        void setSec(int val);
-        void setMin(int val);
-        int getSec();
-        int getMin();        
+        void setSec(uint8_t val);
+        void setMin(uint8_t val);
+        uint8_t getSec();
+        uint8_t getMin();        
 
         // Timeout functions
-        void setTimeoutSec(int val);
-        void setTimeoutMin(int val);
-        int getTimeoutSec();
-        int getTimeoutMin();
+        void setTimeoutSec(uint8_t val);
+        void setTimeoutMin(uint8_t val);
+        uint8_t getTimeoutSec();
+        uint8_t getTimeoutMin();
         bool getTimeout();
         void setTimeout(bool val);
 
@@ -92,6 +93,10 @@ class GameClock {
         // Half functions
         void setHalf(String str);
         String getHalf();
+
+        // Tournament Name functions
+        void setTournamentName(String str);
+        String getTournamentName();
 
         // Name functions        
         void setName(String str);

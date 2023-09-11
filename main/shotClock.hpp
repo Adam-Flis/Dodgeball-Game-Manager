@@ -21,7 +21,7 @@
 #define SHOTCLOCK_HPP
 class ShotClock {
     private:
-        int cnt = 10,
+        uint8_t cnt = 10,
             cntMax = 10,
             preCnt = 0,
             timeDelta = 0,
@@ -30,7 +30,7 @@ class ShotClock {
             timeouts = 2,
             points = 0;
         unsigned long timer = millis();
-        int color[3] = {255, 0, 0};
+        uint8_t color[3] = {255, 0, 0};
         float brightness = 1.0;
         bool paused = true,
             blink = false,
@@ -43,28 +43,28 @@ class ShotClock {
         Adafruit_NeoPixel pixels = Adafruit_NeoPixel(42, NULL, NEO_GRB + NEO_KHZ800);             
 
     public:
-        void configure(int pin, String str);
+        void configure(uint8_t pin, String str);
 
         // Color functions
-        void setColor(int red, int green, int blue);
-        int getRed();
-        int getGreen();
-        int getBlue();
+        void setColor(uint8_t red, uint8_t green, uint8_t blue);
+        uint8_t getRed();
+        uint8_t getGreen();
+        uint8_t getBlue();
 
         // Brightness functions
         void setBrightness(float val);
         float getBrightness();
 
         // Display functions
-        void setDisplay(int num, int segment);
+        void setDisplay(uint8_t num, uint8_t segment);
         void display();
         void off();
 
         // Counter functions
-        int convertNumber(int num);
-        int getCount();
+        uint8_t convertNumber(uint8_t num);
+        uint8_t getCount();
         void decrement();
-        void setCount(int val);
+        void setCount(uint8_t val);
 
         // Other functions
         void reset();
@@ -103,20 +103,20 @@ class ShotClock {
         // Player functions
         void addPlayer();
         void subPlayer();
-        int getPlayers();
-        void setPlayers(int val);
+        uint8_t getPlayers();
+        void setPlayers(uint8_t val);
 
         // Timeout functions
         void addTimeout();
         void subTimeout();
-        int getTimeouts();
-        void setTimeouts(int val);
+        uint8_t getTimeouts();
+        void setTimeouts(uint8_t val);
 
         // Point functions
         void addPoint();
         void subPoint();        
-        int getPoints();
-        void setPoints(int val);        
+        uint8_t getPoints();
+        void setPoints(uint8_t val);        
         
         // Name functions        
         void setName(String str);
@@ -124,8 +124,8 @@ class ShotClock {
         String getSide();
 
         // Pin functions
-        int getPin();
-        void setPin(int val);
+        uint8_t getPin();
+        void setPin(uint8_t val);
 
         // Update functions
         void updateResetMax();
@@ -133,9 +133,9 @@ class ShotClock {
 };
 
 // Both shot clocks share the same min/max values
-void setMin(int val);
-void setMax(int val);
-int getMin();
-int getMax();
+void setMin(uint8_t val);
+void setMax(uint8_t val);
+uint8_t getMin();
+uint8_t getMax();
 
 #endif

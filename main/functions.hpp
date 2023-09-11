@@ -20,8 +20,8 @@
 
 #include "main.hpp"
 
-void updateIndex(String min, String max);
-String rgbToHex(int r, int g, int b);
+void updateIndex(const String& min, const String& max);
+String rgbToHex(uint8_t r, uint8_t g, uint8_t b);
 String getData();
 void updateClient();
 
