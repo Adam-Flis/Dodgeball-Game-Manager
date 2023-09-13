@@ -63,9 +63,8 @@ void setup() {
     // Configure displays
     team1.configure(27, "Team 1");
     team2.configure(25, "Team 2");
-    team2.setColor(0, 0, 255);
     gameClk.configure(26, "Game Clock");
-    gameClk.setColor(255, 0, 255);
+    
     Serial.println(F("Displays configured"));
     delay(100);
 
@@ -85,8 +84,8 @@ void setup() {
 
     // Display initial values 
     team1.display();
-    team2.display();
-    gameClk.display();
+    team2.setColor(0, 0, 255);
+    gameClk.setColor(255, 0, 255);
     Serial.println(F("Setup finished"));
     delay(100);
 }
