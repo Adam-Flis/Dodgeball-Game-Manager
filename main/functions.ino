@@ -17,9 +17,12 @@
 
 #include "main.hpp"
 
+// Constants
+const String UNDEFINED_STR = "undefined";
+
 // Update min/max function that gets called from server
-void updateIndex(String min, String max) {
-    if (min != "undefined" && max != "undefined") {
+void updateIndex(const String& min, const String& max) {
+    if (min != UNDEFINED_STR && max != UNDEFINED_STR) {
         setMin(min.toInt());
         setMax(max.toInt());
         team1.updateResetMax();
@@ -29,7 +32,7 @@ void updateIndex(String min, String max) {
 }
 
 // Convert RGB to hex
-String rgbToHex(int r, int g, int b) {
+String rgbToHex(uint8_t r, uint8_t g, uint8_t b) {
   String red = String(r, HEX);
   String green = String(g, HEX);
   String blue = String(b, HEX);
@@ -102,7 +105,11 @@ String getData() {
     gameClock["minutes"] = gameClk.getMin();
     gameClock["seconds"] = gameClk.getSec();
     gameClock["timeout"] = gameClk.getTimeout();
+    gameClock["timeoutMinutes"] = gameClk.getTimeoutMin();
+    gameClock["timeoutSeconds"] = gameClk.getTimeoutSec();
     gameClock["half"] = gameClk.getHalf();
+    gameClock["name"] = gameClk.getName();
+    gameClock["tournamentName"] = gameClk.getTournamentName();
     gameClock["middleOfPoint"] = gameClk.getMidPoint();
     gameClock["paused"] = gameClk.getPaused();
     gameClock["color"]["hex"] = rgbToHex(gameClk.getRed(), gameClk.getGreen(), gameClk.getBlue());
@@ -119,9 +126,8 @@ String getData() {
     serializeJson(doc, ret);
     return ret;
 }
-
 void updateClient() {
     String data = getData();
     ws.textAll(data);
-    //writeData("data.txt", data);
+    writeData("data.txt", data);
 }

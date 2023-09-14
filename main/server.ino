@@ -15,6 +15,7 @@
  * adamflis2002@gmail.com
  *******************************************************/
 
+#include "ESPAsyncWebServer.h"
 #include "main.hpp"
 
 // Create AsyncWebServer object on port 80
@@ -29,7 +30,7 @@ const char* password = "Dodgeball";
 
 void initWifi() {
   // Connect to Wi-Fi
-  WiFi.softAP(ssid, password, 1, 0, 4);  
+  WiFi.softAP(ssid, password, 1, 0, 10);  
   IPAddress IP = WiFi.softAPIP();
 
   Serial.println("Soft APIP: " + IP.toString()); // APIP = 192.168.4.1 
@@ -39,16 +40,14 @@ void initWifi() {
 void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
     // A new client connected
-    Serial.println("WebSocket client connected");
+    Serial.println(F("WebSocket client connected"));
   } else if (type == WS_EVT_DISCONNECT) {
     // A client disconnected
-    Serial.println("WebSocket client disconnected");
+    Serial.println(F("WebSocket client disconnected"));
   }
 }
 
 void startServer(){  
-
-  initWifi(); // Initialize Wi-Fi
   
   // Handle requests for index html
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -80,6 +79,11 @@ void startServer(){
     request->send(SD, "/practice.html", "text/html");
   });
 
+  // Handle requests for obs data
+  server.on("/obs", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SD, "/data.txt", "text/html");
+  });
+
   // Handle requests for updateServer call
   server.on("/updateServer", HTTP_GET, [](AsyncWebServerRequest *request) {
     
@@ -106,13 +110,13 @@ void startServer(){
   });
 
   server.serveStatic("/", SD, "/");
-  Serial.println("Requests configured");
+  Serial.println(F("Requests configured"));
 
   // Set up WebSocket server and event handlers
   ws.onEvent(onWebSocketEvent);
   server.addHandler(&ws);
-  Serial.println("Handlers configured");
+  Serial.println(F("Handlers configured"));
 
   server.begin(); // Start server
-  Serial.println("Server started");
+  Serial.println(F("Server started"));
 }

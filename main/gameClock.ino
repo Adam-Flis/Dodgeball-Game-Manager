@@ -17,33 +17,33 @@
 
 #include "main.hpp"
 
-void GameClock::configure(int pin, String str) {
+void GameClock::configure(uint8_t pin, String str) {
     name = str;
     pixels.setPin(pin);
     pixels.begin();            
 }
 
 // Color functions
-void GameClock::setColor(int red, int green, int blue) {
+void GameClock::setColor(uint8_t red, uint8_t green, uint8_t blue) {
     color[0] = red;
     color[1] = green;
     color[2] = blue;    
     display();
 }
 
-int GameClock::getRed() {
+uint8_t GameClock::getRed() {
     return color[0];
 }
 
-int GameClock::getGreen() {
+uint8_t GameClock::getGreen() {
     return color[1];
 }
 
-int GameClock::getBlue() {
+uint8_t GameClock::getBlue() {
     return color[2];
 }
 
-void GameClock::setDisplay(int num, int segment) {
+void GameClock::setDisplay(uint8_t num, uint8_t segment) {
     // Segment from left to right: 3, 2, 1, 0
     int startindex = 0;
     switch (segment) {
@@ -60,7 +60,7 @@ void GameClock::setDisplay(int num, int segment) {
         startindex = 44;
     }
 
-    for (int i = 0; i < 14; i++) {
+    for (uint8_t i = 0; i < 14; i++) {
         ((smallNums[num] & 1 << i) == 1 << i) ? 
         pixels.setPixelColor(i + startindex, pixels.Color(color[0], color[1], color[2])) : 
         pixels.setPixelColor(i + startindex, 0x000000);
@@ -92,53 +92,53 @@ void GameClock::off() {
     pixels.show();
 }
 
-int GameClock::getDisplaySec() {
+uint8_t GameClock::getDisplaySec() {
     return dispSec;
 }
 
-int GameClock::getDisplayMin() {
+uint8_t GameClock::getDisplayMin() {
     return dispMin;
 }
 
 // Time functions
-void GameClock::setSec(int val) {
+void GameClock::setSec(uint8_t val) {
     clkSec = val;
     if (!timeout) dispSec = val;
     display();
 }
 
-void GameClock::setMin(int val) {
+void GameClock::setMin(uint8_t val) {
     clkMin = val;
     if (!timeout) dispMin = val;
     display();
 }
 
-int GameClock::getSec() {
+uint8_t GameClock::getSec() {
     return clkSec;
 }
 
-int GameClock::getMin() {
+uint8_t GameClock::getMin() {
     return clkMin;
 }
 
 // Timeout functions
-void GameClock::setTimeoutSec(int val) {
+void GameClock::setTimeoutSec(uint8_t val) {
     toSec = val;
     if (timeout) dispSec = val;
     display();
 }
 
-void GameClock::setTimeoutMin(int val) {
+void GameClock::setTimeoutMin(uint8_t val) {
     toMin = val;
     if (timeout) dispMin = val;
     display();
 }
 
-int GameClock::getTimeoutSec() {
+uint8_t GameClock::getTimeoutSec() {
     return toSec;
 }
 
-int GameClock::getTimeoutMin() {
+uint8_t GameClock::getTimeoutMin() {
     return toMin;
 }
 
@@ -169,26 +169,20 @@ void GameClock::resetTimer() {
 
 void GameClock::decrement(){  
     if (timeout) {
-        toSec--;
-        if (toSec < 0){
-            toMin--;
+        if (toSec > 0) { // Check if seconds is not 0
+            toSec--;
+        } else if (toSec == 0 && toMin > 0) { // Check if seconds is 0 and minutes is not 0
             toSec = 59;
-        }
-        if (toMin < 0){
-            toMin = 0;
-            toSec = 0;
+            toMin--;            
         }
         dispSec = toSec;
         dispMin = toMin;
-    } else {
-        clkSec--;
-        if (clkSec < 0){
-            clkMin--;
+    } else {        
+        if (clkSec > 0) { // Check if seconds and minutes are not 0
+            clkSec--;
+        } else if (clkSec == 0 && clkMin > 0) { // Check if seconds is 0 and minutes is not 0
             clkSec = 59;
-        }
-        if (clkMin < 0){
-            clkMin = 0;
-            clkSec = 0;
+            clkMin--;            
         }
         dispSec = clkSec;
         dispMin = clkMin;
@@ -253,6 +247,15 @@ String GameClock::getHalf() {
     return half;
 }
 
+// Tournament Name functions
+void GameClock::setTournamentName(String str) {
+    tournamentName = str;
+}
+
+String GameClock::getTournamentName() {
+    return tournamentName;
+}
+
 // Name functions
 void GameClock::setName(String str) {
     name = str;
@@ -272,8 +275,8 @@ void GameClock::updateState(String type, String value) {
         buzzer2.play(3);
     } else if (type == "resume") {
         gameClk.unpause();
-        team1.unpause();
-        team2.unpause();
+        //team1.unpause();
+        //team2.unpause();
         buzzer1.play(3);
         buzzer2.play(3);
     } else if (type == "timeout" && value != "close") {
@@ -315,26 +318,28 @@ void GameClock::updateState(String type, String value) {
         buzzer1.play(3);
         buzzer2.play(3);
         midPoint = true;
-        unpause();
+        gameClk.unpause();
     }
     else if (type == "color") {
         // Get red, green, blue values
-        int red = value.substring(value.indexOf("r=") + 2, 
+        uint8_t red = value.substring(value.indexOf("r=") + 2, 
                         value.indexOf("g=")).toInt();
-        int green = value.substring(value.indexOf("g=") + 2, 
+        uint8_t green = value.substring(value.indexOf("g=") + 2, 
                                 value.indexOf("b=")).toInt();
-        int blue = value.substring(value.indexOf("b=") + 2).toInt();
+        uint8_t blue = value.substring(value.indexOf("b=") + 2).toInt();
         setColor(red, green, blue);
     } else if (type == "minutes") {
-        int val = value.toInt();
+        uint8_t val = value.toInt();
         setMin(val);
     } else if (type == "seconds") {
-        int val = value.toInt();
+        uint8_t val = value.toInt();
         setSec(val);
     } else if (type == "half") {
         setHalf(value);
+    } else if (type== "tournamentName") {
+        setTournamentName(value);
     } else if (type == "swap") {
-        int temp = team1.getPin();
+        uint8_t temp = team1.getPin();
         team1.setPin(team2.getPin());
         team2.setPin(temp);
         team1.display();

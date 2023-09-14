@@ -17,50 +17,50 @@
 
 #include "main.hpp"
 
-int minTime = 10, maxTime = 15;
+uint8_t minTime = 10, maxTime = 15;
 
 // Min functions
-void setMin(int val) {
+void setMin(uint8_t val) {
     minTime = val;
 }
 
-int getMin() {
+uint8_t getMin() {
     return minTime;
 }
 
 // Max functions
-void setMax(int val) {
+void setMax(uint8_t val) {
     maxTime = val;
 }
 
-int getMax() {
+uint8_t getMax() {
     return maxTime;
 }
 
 // Configure LEDs and events
-void ShotClock::configure(int pin, String str) {
+void ShotClock::configure(uint8_t pin, String str) {
     side = str;
     pixels.setPin(pin);
     pixels.begin();            
 }
 
 // Color functions
-void ShotClock::setColor(int red, int green, int blue) {
+void ShotClock::setColor(uint8_t red, uint8_t green, uint8_t blue) {
     color[0] = red;
     color[1] = green;
     color[2] = blue;
     display();
 }
 
-int ShotClock::getRed() {
+uint8_t ShotClock::getRed() {
     return color[0];
 }
 
-int ShotClock::getGreen() {
+uint8_t ShotClock::getGreen() {
     return color[1];
 }
 
-int ShotClock::getBlue() {
+uint8_t ShotClock::getBlue() {
     return color[2];
 }
 
@@ -75,10 +75,10 @@ float ShotClock::getBrightness() {
 }
 
 // Display functions
-void ShotClock::setDisplay(int num, int segment) {
+void ShotClock::setDisplay(uint8_t num, uint8_t segment) {
 
     // Segment from left to right: 1, 0
-    int startindex = 0;
+    uint8_t startindex = 0;
     switch (segment) {
     case 0:
         startindex = 0;
@@ -88,7 +88,7 @@ void ShotClock::setDisplay(int num, int segment) {
         break;  
     }
 
-    for (int i = 0; i < 21; i++){
+    for (uint8_t i = 0; i < 21; i++){
         ((largeNums[num] & 1 << i) == 1 << i) ? 
         pixels.setPixelColor(i + startindex, pixels.Color(color[0] * brightness, color[1] * brightness, color[2] * brightness)) : 
         pixels.setPixelColor(i + startindex, 0x000000);
@@ -97,7 +97,7 @@ void ShotClock::setDisplay(int num, int segment) {
 
 void ShotClock::display() {    
     if (!blink) {
-        int sec = convertNumber(cnt);
+        uint8_t sec = convertNumber(cnt);
         setDisplay(sec / 10, 1);
         setDisplay(sec % 10, 0);
         pixels.show();
@@ -110,14 +110,14 @@ void ShotClock::off() {
 }
 
 // Counter functions
-int ShotClock::convertNumber(int num) {
-    int ret = num;
+uint8_t ShotClock::convertNumber(uint8_t num) {
+    uint8_t ret = num;
     // Count up or down
     if (!countDown) ret = cntMax - num;
     return ret;
 }
 
-int ShotClock::getCount() { 
+uint8_t ShotClock::getCount() { 
     return cnt; 
 }
 
@@ -126,7 +126,7 @@ void ShotClock::decrement() {
     if (preCnt > 0) preCnt--;            
 }
 
-void ShotClock::setCount(int val) {
+void ShotClock::setCount(uint8_t val) {
     preCnt = cnt;
     cnt = val;
 }
@@ -264,11 +264,11 @@ void ShotClock::subPlayer() {
     players--;
 }
 
-int ShotClock::getPlayers() {
+uint8_t ShotClock::getPlayers() {
     return players;
 }
 
-void ShotClock::setPlayers(int val) {
+void ShotClock::setPlayers(uint8_t val) {
     players = val;
 }
 
@@ -281,11 +281,11 @@ void ShotClock::subTimeout() {
     timeouts--;
 }
 
-int ShotClock::getTimeouts() {
+uint8_t ShotClock::getTimeouts() {
     return timeouts;
 }
 
-void ShotClock::setTimeouts(int val) {
+void ShotClock::setTimeouts(uint8_t val) {
     timeouts = val;
 }
 
@@ -298,11 +298,11 @@ void ShotClock::subPoint() {
     points--;
 }
 
-int ShotClock::getPoints() {
+uint8_t ShotClock::getPoints() {
     return points;
 }
 
-void ShotClock::setPoints(int val) {
+void ShotClock::setPoints(uint8_t val) {
     points = val;
 }
 
@@ -320,11 +320,11 @@ String ShotClock::getSide() {
 }
 
 // Pin functions
-int ShotClock::getPin() {
+uint8_t ShotClock::getPin() {
     return pixels.getPin();
 }
 
-void ShotClock::setPin(int val) {
+void ShotClock::setPin(uint8_t val) {
     pixels.setPin(val);
 }
 
@@ -348,26 +348,26 @@ void ShotClock::updateState(String type, String value) {
     else if (type == "pause") togglePause(); // Toggle paused
     else if (type == "color") { // Change color
         // Get red, green, blue values
-        int red = value.substring(value.indexOf("r=") + 2, 
+        uint8_t red = value.substring(value.indexOf("r=") + 2, 
                         value.indexOf("g=")).toInt();
-        int green = value.substring(value.indexOf("g=") + 2, 
+        uint8_t green = value.substring(value.indexOf("g=") + 2, 
                                 value.indexOf("b=")).toInt();
-        int blue = value.substring(value.indexOf("b=") + 2).toInt();
+        uint8_t blue = value.substring(value.indexOf("b=") + 2).toInt();
         setColor(red, green, blue);
     } else if (type == "players") { // Update player count    
-        int num = value.toInt();
+        uint8_t num = value.toInt();
         players = num;
     } else if (type == "points") { // Update points
-        int num = value.toInt();
+        uint8_t num = value.toInt();
         points = num;
     } else if (type == "timeouts") { // Update timeout count
-        int num = value.toInt();
+        uint8_t num = value.toInt();
         timeouts = num;
     } else if (type == "name") { // Update name
         name = value;
     } else if (type == "timer") { // Update shot clock
         reset();
-        int num = value.toInt();
+        uint8_t num = value.toInt();
         cnt = num;
     }
     updateClient();

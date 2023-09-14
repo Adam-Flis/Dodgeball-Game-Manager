@@ -64,27 +64,30 @@ void setup() {
     team1.configure(27, "Team 1");
     team2.configure(25, "Team 2");
     gameClk.configure(26, "Game Clock");
-    Serial.println("Displays configured");
-
+    
+    Serial.println(F("Displays configured"));
     delay(100);
 
     // Configure buzzers
     buzzer1.configure(2, OUTPUT);
     buzzer2.configure(15, OUTPUT);
-    Serial.println("Buzzers configured");
-
+    Serial.println(F("Buzzers configured"));
     delay(100);
 
     initSDCard(); // Initialize SD card
-    startServer(); // Start server
+    delay(100);
 
+    initWifi(); // Initialize wifi
+    delay(100);
+    startServer(); // Start server
     delay(100);   
 
     // Display initial values 
     team1.display();
-    team2.display();
-    gameClk.display();
-    Serial.println("Setup finished");
+    team2.setColor(0, 0, 255);
+    gameClk.setColor(255, 0, 255);
+    Serial.println(F("Setup finished"));
+    delay(100);
 }
 
 // Loop that runs everything
