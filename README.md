@@ -1,5 +1,5 @@
 # Dodgeball Game Manager
-## OSU Buckeye Opener tournament at Ohio State 9/17/23
+## OSU Buckeye Opener at The Ohio State University 9/17/23
 - [Instructions](https://docs.google.com/document/d/1rwGapBdNaXAx_ld4IXSsi7GfStr48iM4Y-gs--J7mmU/edit?usp=sharing)
 
 ## NDA tournament at Ohio University 7/22/23 / Toledo 8/5/23
