@@ -300,8 +300,11 @@
       <label for="gameclock-tournamentName">Tournament:</label>
       <input type="text" id="gameclock-tournamentName" onchange="updateServer(this)"><br>
 
-      <label for="gameclock-color">Color:</label>
+      <label for="gameclock-color">Game Clock Color:</label>
       <input type="color" id="gameclock-color" value="#ff0000" onchange="updateServer(this)"><br>
+
+      <label for="gameclock-secondaryColor">Secondary Color:</label>
+      <input type="color" id="gameclock-secondaryColor" value="#ff0000" onchange="updateServer(this)"><br>
 
       <table>
         <tbody>
@@ -342,13 +345,13 @@
       <input type="number" id="team1-timer" min="0" max="99" value="10" onchange="checkInput(this), updateServer(this)"><br>
 
       <label for="team1-players">Players:</label>
-      <input type="number" id="team1-players" min="0" max="99" value="0" onchange="updateServer(this)"><br>
+      <input type="number" id="team1-players" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"><br>
 
       <label for="team1-timeouts">Timeouts:</label>
-      <input type="number" id="team1-timeouts" min="0" max="99" value="0" onchange="updateServer(this)"><br>
+      <input type="number" id="team1-timeouts" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"><br>
 
       <label for="team1-points">Points:</label>
-      <input type="number" id="team1-points" min="0" max="99" value="0" onchange="updateServer(this)"><br>
+      <input type="number" id="team1-points" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"><br>
 
       <label for="team1-color">Color:</label>
       <input type="color" id="team1-color" value="#ff0000" onchange="updateServer(this)"><br>
@@ -379,13 +382,13 @@
       <input type="number" id="team2-timer" min="0" max="99" value="10" onchange="checkInput(this), updateServer(this)"><br>
 
       <label for="team2-players">Players:</label>
-      <input type="number" id="team2-players" min="0" max="99" value="0" onchange="updateServer(this)"><br>
+      <input type="number" id="team2-players" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"><br>
 
       <label for="team2-timeouts">Timeouts:</label>
-      <input type="number" id="team2-timeouts" min="0" max="99" value="0" onchange="updateServer(this)"><br>
+      <input type="number" id="team2-timeouts" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"><br>
 
       <label for="team2-points">Points:</label>
-      <input type="number" id="team2-points" min="0" max="99" value="0" onchange="updateServer(this)"><br>
+      <input type="number" id="team2-points" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"><br>
 
       <label for="team2-color">Color:</label>
       <input type="color" id="team2-color" value="#ff0000" onchange="updateServer(this)"><br>
@@ -563,16 +566,14 @@
         value = element.value;
       } 
 
-      if (str === "color") {
+      if (str === "color" || str === "secondaryColor") {
         value = value.replace("#", "");
         // Convert the hex color code to RGB
         var r = parseInt(value.substring(0, 2), 16);
         var g = parseInt(value.substring(2, 4), 16);
         var b = parseInt(value.substring(4, 6), 16);
         value = `r=${r}g=${g}b=${b}`;
-      }
-
-      console.log(`side=${side}&type=${str}&value=${value}`);
+      }    
 
       var xhr = new XMLHttpRequest();
       xhr.open("GET", `/updateServer?side=${side}&type=${str}&value=${value}`, true);    
@@ -613,6 +614,11 @@
       // Update game clock color
       if (!document.getElementById('gameclock-color').matches(':focus')) {
         document.getElementById('gameclock-color').value = gameClock.color.hex;
+      }
+
+      // Secondary color
+      if (!document.getElementById('gameclock-secondaryColor').matches(':focus')) {
+        document.getElementById('gameclock-secondaryColor').value = gameClock.secondaryColor.hex;
       }
 
       // Update min/max

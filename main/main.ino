@@ -83,9 +83,9 @@ void setup() {
     delay(100);   
 
     // Display initial values 
-    team1.display();
-    team2.setColor(0, 0, 255);
-    gameClk.setColor(255, 0, 255);
+    team1.setColor(0, 255, 0);
+    team2.setColor(0, 255, 255);
+    gameClk.display();
     Serial.println(F("Setup finished"));
     delay(100);
 }
@@ -100,8 +100,8 @@ void loop() {
             gameClk.decrement();
             gameClk.display();
             if (gameClk.getDisplayMin() == 0 && gameClk.getDisplaySec() == 0) {
-                if (gameClk.getTimeout()) {
-                    gameClk.setTimeout(false);
+                if (gameClk.getSecondary()) {
+                    gameClk.setSecondary(false);
                     gameClk.pause();
                     gameClk.display();
                 } else {

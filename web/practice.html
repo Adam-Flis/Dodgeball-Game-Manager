@@ -279,7 +279,7 @@
 </head>
 <body>
   <div class="navbar">
-    <button class="back-button" onclick="window.history.back()">&#8592;</button>
+    <a href="/" class="link"><button class="back-button">&#8592;</button></a>
     <span class="title">Practice Mode</span>
     <a href="/settings" class="link"><button class="settings-button">&#9965;</button></a>
   </div>  
@@ -433,29 +433,49 @@
         var options = [];
         
         if (type === 'timeout') {
-            team1Timeouts = document.getElementById('team1-timeouts').innerHTML;
-            team2Timeouts = document.getElementById('team2-timeouts').innerHTML;
-            if (team1Timeouts > 0) {
-                options.push('Team 1');
+            if (document.getElementById('team1-timeouts').innerHTML > 0) {
+                options.push(format(1));
             }
-            if (team2Timeouts > 0) {
-                options.push('Team 2');
+            if (document.getElementById('team2-timeouts').innerHTML > 0) {
+                options.push(format(2));
             }
             options.push('Official');                                           
         } else if (type === 'endpoint') {
-            options = ['Team 1', 'Team 2', 'Draw'];            
+            options = [format(1), format(2), 'Draw'];            
         }
 
         options.forEach(option => {                
             const button = document.createElement('button');
             button.innerText = option;
             button.id = type;
-            button.value = option.replace(" ", "").toLowerCase();
+            button.value = optionFormat(option);
             button.onclick = () => closePopup(button);
             popupOptions.appendChild(button);
         });        
         document.getElementById('popup').style.display = 'block';
-    }    
+    }
+    
+    function format(val) {
+        var str;
+        if (val === 1) {
+            str = document.getElementById('team1-name').innerHTML;
+        } else if (val === 2) {
+            str = document.getElementById('team2-name').innerHTML;
+        }
+        return "" + str;
+    }
+
+    function optionFormat(str) {
+        if (str === 'Official') {
+            return 'official';
+        } else if (str === 'Draw') {
+            return 'draw';
+        } else if (str === document.getElementById('team1-name').innerHTML) {
+            return "team1";
+        } else if (str === document.getElementById('team2-name').innerHTML) {
+            return "team2";
+        }
+    } 
     
     function closePopup(element) {        
         document.getElementById('popup').style.display = 'none';
@@ -496,13 +516,13 @@
         if (team1.name === "") { // Team 1
             document.getElementById("team1-name").innerHTML = team1.side;
         } else {
-            document.getElementById("team1-name").innerHTML = team1.side + ": " + team1.name;
+            document.getElementById("team1-name").innerHTML = team1.name;
         }
 
         if (team2.name === "") { // Team 2
             document.getElementById("team2-name").innerHTML = team2.side;        
         } else {
-            document.getElementById("team2-name").innerHTML = team2.side + ": " + team2.name;
+            document.getElementById("team2-name").innerHTML = team2.name;
         }
 
         // Update team shot clockers

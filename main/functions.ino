@@ -104,18 +104,22 @@ String getData() {
     gameClock["displayedSeconds"] = gameClk.getDisplaySec();
     gameClock["minutes"] = gameClk.getMin();
     gameClock["seconds"] = gameClk.getSec();
-    gameClock["timeout"] = gameClk.getTimeout();
-    gameClock["timeoutMinutes"] = gameClk.getTimeoutMin();
-    gameClock["timeoutSeconds"] = gameClk.getTimeoutSec();
+    gameClock["secondary"] = gameClk.getSecondary();
+    gameClock["secondaryMinutes"] = gameClk.getSecondaryMin();
+    gameClock["secondarySeconds"] = gameClk.getSecondarySec();
     gameClock["half"] = gameClk.getHalf();
     gameClock["name"] = gameClk.getName();
     gameClock["tournamentName"] = gameClk.getTournamentName();
     gameClock["middleOfPoint"] = gameClk.getMidPoint();
     gameClock["paused"] = gameClk.getPaused();
-    gameClock["color"]["hex"] = rgbToHex(gameClk.getRed(), gameClk.getGreen(), gameClk.getBlue());
-    gameClock["color"]["rgb"]["r"] = gameClk.getRed();
-    gameClock["color"]["rgb"]["g"] = gameClk.getGreen();
-    gameClock["color"]["rgb"]["b"] = gameClk.getBlue();
+    gameClock["color"]["hex"] = rgbToHex(gameClk.getRed(false), gameClk.getGreen(false), gameClk.getBlue(false));
+    gameClock["color"]["rgb"]["r"] = gameClk.getRed(false);
+    gameClock["color"]["rgb"]["g"] = gameClk.getGreen(false);
+    gameClock["color"]["rgb"]["b"] = gameClk.getBlue(false);
+    gameClock["secondaryColor"]["hex"] = rgbToHex(gameClk.getRed(true), gameClk.getGreen(true), gameClk.getBlue(true));
+    gameClock["secondaryColor"]["rgb"]["r"] = gameClk.getRed(true);
+    gameClock["secondaryColor"]["rgb"]["g"] = gameClk.getGreen(true);
+    gameClock["secondaryColor"]["rgb"]["b"] = gameClk.getBlue(true);
 
     // Other
     other["minimumLength"] = getMin();

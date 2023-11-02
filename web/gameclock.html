@@ -135,8 +135,21 @@
         background-color: #f5f5f5;
         border: 1px solid #ddd;
         padding: 10px;
-        font-size: 70px;        
+        border-radius: 5px;
+        font-size: 70px; 
+        position: relative;       
     }
+
+    .secondary-timer {
+        position: absolute;
+        border: 1px solid #ddd;
+        top: 5px; /* Adjust as needed */
+        right: 5px; /* Adjust as needed */
+        color: #ff0000;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 20px;
+      }
 
     .timer span {
         color: #ff0000;
@@ -326,6 +339,7 @@
   <div class="container">    
     <div class="timer">
         <span id="timer-text">25:00</span>
+        <div class="secondary-timer" id="secondary-timer" style="display: none;">0:00</div>
     </div>        
     <div class="buttons">
         <button id="time-button" onclick="button(this)">TIMEOUT</button><br>
@@ -342,30 +356,32 @@
                 <td colspan="2" class="table-title">Timeouts Left</td>
             </tr>
             <tr>
-                <td class="table-text" id="team1-timeouts">0</td>
-                <td class="table-text" id="team2-timeouts">0</td>
+                <td class="table-text" id="team1-timeouts-text">0</td>
+                <td class="table-text" id="team2-timeouts-text">0</td>
+            </tr>            
+            
+            <tr>
+                <td colspan="2" class="table-title">Points Scored</td>
             </tr>
+            <tr>
+                <td class="table-text" id="team1-points-text">0</td>
+                <td class="table-text" id="team2-points-text">0</td>
+            </tr>
+           
+            <tr>
+                <td colspan="2" class="table-title">Players</td>
+            </tr>
+            <tr>
+                <td class="table-text" id="team1-players-text">0</td>
+                <td class="table-text" id="team2-players-text">0</td>
+            </tr>
+
             <tr>
                 <td colspan="2" class="table-title">Shot Clock</td>
             </tr>
             <tr>
                 <td class="table-text" id="team1-sc">0</td>
                 <td class="table-text" id="team2-sc">0</td>
-            </tr>
-            <tr>
-                <td colspan="2" class="table-title">Players</td>
-            </tr>
-            <tr>
-                <td class="table-text" id="team1-players">0</td>
-                <td class="table-text" id="team2-players">0</td>
-            </tr>
-            
-            <tr>
-                <td colspan="2" class="table-title">Points</td>
-            </tr>
-            <tr>
-                <td class="table-text" id="team1-pts">0</td>
-                <td class="table-text" id="team2-pts">0</td>
             </tr>
         </tbody>
         </table>
@@ -400,8 +416,38 @@
         <label for="tournamentName">Tournament:</label>
         <input type="text" id="tournamentName" onchange="updateServer(this)"><br>
   
-        <label for="color">Color:</label>
+        <label for="color">Game Clock Color:</label>
         <input type="color" id="color" value="#ff0000" onchange="updateServer(this)"><br>
+
+        <label for="secondaryColor">Secondary Color:</label>
+        <input type="color" id="secondaryColor" value="#ff0000" onchange="updateServer(this)"><br>
+
+        <table class="info-table">
+            <tbody>
+                <tr>
+                    <td class="table-text" id="settings-team1-name">Team 1</td>
+                    <td class="table-text" id="settings-team2-name">Team 2</td>
+                </tr>
+            <tr>
+                <td class="table-text" colspan="2">Timeouts Left</td>
+            </tr> 
+            <tr>
+                <td><label for="team1-timeouts" class="table-text"></label>
+                <input type="number" id="team1-timeouts" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"></td>
+                <td><label for="team2-timeouts" class="table-text"></label>
+                <input type="number" id="team2-timeouts" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"></td>
+            </tr>
+            <tr>
+                <td class="table-text" colspan="2">Points Scored</td>
+            </tr> 
+            <tr>
+                <td><label for="team1-points" class="table-text"></label>
+                <input type="number" id="team1-points" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"></td>
+                <td><label for="team2-points" class="table-text"></label>
+                <input type="number" id="team2-points" min="0" max="99" value="0" onchange="checkInput(this), updateServer(this)"></td>
+            </tr>         
+            </tbody>
+        </table>        
 
       </div>
     </div>
@@ -468,29 +514,49 @@
         var options = [];
         
         if (type === 'timeout') {
-            team1Timeouts = document.getElementById('team1-timeouts').innerHTML;
-            team2Timeouts = document.getElementById('team2-timeouts').innerHTML;
-            if (team1Timeouts > 0) {
-                options.push('Team 1');
+            if (document.getElementById('team1-timeouts').innerHTML > 0) {
+                options.push(format(1));
             }
-            if (team2Timeouts > 0) {
-                options.push('Team 2');
+            if (document.getElementById('team2-timeouts').innerHTML > 0) {
+                options.push(format(2));
             }
             options.push('Official');                                           
         } else if (type === 'endpoint') {
-            options = ['Team 1', 'Team 2', 'Draw'];            
+            options = [format(1), format(2), 'Draw'];            
         }
 
         options.forEach(option => {                
             const button = document.createElement('button');
             button.innerText = option;
             button.id = type;
-            button.value = option.replace(" ", "").toLowerCase();
+            button.value = optionFormat(option);
             button.onclick = () => closePopup(button);
             popupOptions.appendChild(button);
         });        
         document.getElementById('popup').style.display = 'block';
-    }    
+    }
+    
+    function format(val) {
+        var str;
+        if (val === 1) {
+            str = document.getElementById('team1-name').innerHTML;
+        } else if (val === 2) {
+            str = document.getElementById('team2-name').innerHTML;
+        }
+        return "" + str;
+    }
+
+    function optionFormat(str) {
+        if (str === 'Official') {
+            return 'official';
+        } else if (str === 'Draw') {
+            return 'draw';
+        } else if (str === document.getElementById('team1-name').innerHTML) {
+            return "team1";
+        } else if (str === document.getElementById('team2-name').innerHTML) {
+            return "team2";
+        }
+    }
     
     function closePopup(element) {        
         document.getElementById('popup').style.display = 'none';
@@ -523,6 +589,19 @@
         }
     }
 
+    function miniature(val) {
+        const dynamicBox = document.querySelector('.secondary-timer');
+        if (val === 1) {
+            if (dynamicBox) {
+                dynamicBox.style.display = 'block'; // Show the existing dynamic box
+            }
+        } else {
+            if (dynamicBox) {
+                dynamicBox.style.display = 'none'; // Hide the existing dynamic box
+            }
+        }
+    }
+
     // Update the server when an action occurs 
     function updateServer(element) {
         var str = element;
@@ -530,11 +609,17 @@
 
         // Check if element is undefined
         if (typeof element === "object") {
-            str = element.id;
+            if (element.id.includes("-")) {
+            var beforeWordIndex = element.id.indexOf("-");
+            side = element.id.substring(0, beforeWordIndex);
+            str = element.id.substring(beforeWordIndex + 1);
+            } else {
+                str = element.id;
+            }            
             value = element.value;
         }        
         
-        if (str === "color") {
+        if (str === "color" || str === "secondaryColor") {
             value = value.replace("#", "");
             // Convert the hex color code to RGB
             var r = parseInt(value.substring(0, 2), 16);
@@ -544,7 +629,7 @@
         }        
 
         var xhr = new XMLHttpRequest();        
-        xhr.open("GET", `/updateServer?side=${side}&type=${str}&value=${value}`, true);    
+        xhr.open("GET", `/updateServer?side=${side}&type=${str}&value=${value}`, true);   
         xhr.send();
     }    
 
@@ -556,21 +641,29 @@
         var team1 = response.team1;
         var team2 = response.team2;
 
+        var gameClockMin = gameClock.minutes;
+        var gameClockSec = gameClock.seconds;
+
         // Update game clock   
         if (!document.getElementById('minutes').matches(':focus')) {
-            document.getElementById('minutes').value = gameClock.minutes;
+            document.getElementById('minutes').value = gameClockMin;
         }
         if (!document.getElementById('seconds').matches(':focus')) {
-            document.getElementById('seconds').value = gameClock.seconds;
+            document.getElementById('seconds').value = gameClockSec;
         }
 
         // Update display
         var dispMinutes = gameClock.displayedMinutes;
         var dispSeconds = gameClock.displayedSeconds;
 
-        if (dispMinutes < 10) {
-            dispMinutes = "0" + String(dispMinutes);
+        if (dispMinutes == gameClockMin && dispSeconds == gameClockSec) {
+            miniature(0);
+        } else {
+            miniature(1);
+            var sec = gameClockSec < 10 ? "0" + gameClockSec : gameClockSec.toString();
+            document.getElementById('secondary-timer').innerHTML = gameClockMin + ":" + sec; 
         }
+
         if (dispSeconds < 10) {
             dispSeconds = "0" + String(dispSeconds);
         }
@@ -579,7 +672,7 @@
         
         // Update buttons
         var text = gameClock.paused ? 'RESUME' : 'TIMEOUT';
-        if (gameClock.timeout) {
+        if (gameClock.secondary) {
             text = 'END TIMEOUT'
         }
         document.getElementById('time-button').innerHTML = text;
@@ -590,27 +683,45 @@
         // Update team names
         if (team1.name === "") { // Team 1
             document.getElementById("team1-name").innerHTML = team1.side;
+            document.getElementById("settings-team1-name").innerHTML = team1.side;
         } else {
-            document.getElementById("team1-name").innerHTML = team1.side + ": " + team1.name;
+            document.getElementById("team1-name").innerHTML = team1.name;
+            document.getElementById("settings-team1-name").innerHTML = team1.name;
         }
 
         if (team2.name === "") { // Team 2
-            document.getElementById("team2-name").innerHTML = team2.side;        
+            document.getElementById("team2-name").innerHTML = team2.side;   
+            document.getElementById("settings-team2-name").innerHTML = team2.side;     
         } else {
-            document.getElementById("team2-name").innerHTML = team2.side + ": " + team2.name;
+            document.getElementById("team2-name").innerHTML = team2.name;
+            document.getElementById("settings-team2-name").innerHTML = team2.side;
         }  
 
         // Update team points
-        document.getElementById('team1-pts').innerHTML = team1.points;
-        document.getElementById('team2-pts').innerHTML = team2.points;
+        if (!document.getElementById('team1-points').matches(':focus')) {
+            document.getElementById("team1-points").value = team1.points;
+        }
+        document.getElementById('team1-points-text').innerHTML = team1.points;
+
+        if (!document.getElementById('team2-points').matches(':focus')) {
+            document.getElementById("team2-points").value = team2.points;
+        }
+        document.getElementById('team2-points-text').innerHTML = team2.points;
 
         // Update team timeouts
-        document.getElementById('team1-timeouts').innerHTML = team1.timeoutsLeft;
-        document.getElementById('team2-timeouts').innerHTML = team2.timeoutsLeft;
+        if (!document.getElementById('team1-timeouts').matches(':focus')) {
+            document.getElementById("team1-timeouts").value = team1.timeoutsLeft;
+        }
+        document.getElementById('team1-timeouts-text').innerHTML = team1.timeoutsLeft;
+
+        if (!document.getElementById('team2-timeouts').matches(':focus')) {
+            document.getElementById("team2-timeouts").value = team2.timeoutsLeft;
+        }
+        document.getElementById('team2-timeouts-text').innerHTML = team2.timeoutsLeft;
 
         // Update team players
-        document.getElementById('team1-players').innerHTML = team1.playersLeft;
-        document.getElementById('team2-players').innerHTML = team2.playersLeft;
+        document.getElementById('team1-players-text').innerHTML = team1.playersLeft;
+        document.getElementById('team2-players-text').innerHTML = team2.playersLeft;
 
         // Update team shot clockers
         document.getElementById('team1-sc').innerHTML = team1.displayedCount;
@@ -630,8 +741,17 @@
         if (!document.getElementById('color').matches(':focus')) {
             document.getElementById('color').value = gameClock.color.hex;
         }
-        document.getElementById("timer-text").style.color = gameClock.color.hex;
 
+        if (!document.getElementById('secondaryColor').matches(':focus')) {
+            document.getElementById('secondaryColor').value = gameClock.secondaryColor.hex;
+        }
+
+        if (gameClock.secondary) {
+            document.getElementById("timer-text").style.color = gameClock.secondaryColor.hex;
+            document.getElementById("secondary-timer").style.color = gameClock.color.hex;
+        } else {
+            document.getElementById("timer-text").style.color = gameClock.color.hex;
+        } 
     }
 
   </script>

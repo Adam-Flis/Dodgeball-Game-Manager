@@ -25,16 +25,17 @@ class GameClock {
         uint8_t dispMin = 25,
             dispSec = 0,
             timeDelta = 0,
-            toMin = 0,
-            toSec = 0,
+            secMin = 0,
+            secSec = 0,
             clkMin = 25,
             clkSec = 0;
         unsigned long timer = millis();
         uint8_t color[3] = {255, 0, 0};
+        uint8_t secondaryColor[3] = {0, 255, 255};
         bool paused = true,
              blink = false,
              midPoint = false,
-             timeout = false,
+             secondary = false,
              official = false;
         String name = "",
                tournamentName = "",
@@ -45,10 +46,10 @@ class GameClock {
         void configure(uint8_t pin, String str);
         
         // Color functions
-        void setColor(uint8_t red, uint8_t green, uint8_t blue);
-        uint8_t getRed();
-        uint8_t getGreen();
-        uint8_t getBlue();
+        void setColor(uint8_t red, uint8_t green, uint8_t blue, bool secondary);
+        uint8_t getRed(bool secondary);
+        uint8_t getGreen(bool secondary);
+        uint8_t getBlue(bool secondary);
 
         // Display functions
         void setDisplay(uint8_t num, uint8_t segment);
@@ -64,13 +65,13 @@ class GameClock {
         uint8_t getSec();
         uint8_t getMin();        
 
-        // Timeout functions
-        void setTimeoutSec(uint8_t val);
-        void setTimeoutMin(uint8_t val);
-        uint8_t getTimeoutSec();
-        uint8_t getTimeoutMin();
-        bool getTimeout();
-        void setTimeout(bool val);
+        // Secondary time functions
+        void setSecondarySec(uint8_t val);
+        void setSecondaryMin(uint8_t val);
+        uint8_t getSecondarySec();
+        uint8_t getSecondaryMin();
+        bool getSecondary();
+        void setSecondary(bool val);
 
         // Timer functions
         unsigned long getTimer();
