@@ -16,6 +16,8 @@ POINTS = "points"
 MINUTES = "minutes"
 SECONDS = "seconds"
 
+HALF = "half"
+
 path = ""
 
 async def getValue(json, parent, key):
@@ -31,13 +33,20 @@ async def writeToTeam(path, team, type, value):
     except Exception as e:
         print(f"Error writing to file: {e}")
 
-async def writeToClock(path, gameclock, value1, value2):
+async def writeToGameClock(path, gameclock, value1, value2):
     try:
         async with aiofiles.open(f"{path}/{gameclock}.txt", mode="w") as file:
             if value2 < 10:
                 await file.write(f"{value1}:0{value2}")
             else:
                 await file.write(f"{value1}:{value2}")
+    except Exception as e:
+        print(f"Error writing to file: {e}")
+
+async def writeToGeneral(path, type, value):
+    try:
+        async with aiofiles.open(f"{path}/{type}.txt", mode="w") as f:
+            await f.write(f"{value}")
     except Exception as e:
         print(f"Error writing to file: {e}")
 
@@ -59,7 +68,7 @@ async def receive_updates():
                 min = await getValue(data, GAMECLOCK, MINUTES)
                 sec = await getValue(data, GAMECLOCK, SECONDS)      
                                 
-                await writeToClock(path, GAMECLOCK, min, sec)  
+                await writeToGameClock(path, GAMECLOCK, min, sec)  
                 
                 # Shot clock
                 team1Clock = await getValue(data, TEAM1, SHOTCLOCK)
@@ -88,20 +97,23 @@ async def receive_updates():
                 
                 await writeToTeam(path, TEAM1, PLAYERS, team1Players)
                 await writeToTeam(path, TEAM2, PLAYERS, team2Players)
+                
+                # Half
+                half = await getValue(data, GAMECLOCK, HALF)
+                
+                await writeToGeneral(path, HALF, half)                
                               
                 await asyncio.sleep(0.1)  # Wait for 0.1 seconds before requesting another update                
             except websockets.ConnectionClosed:
                 print("Connection to the server closed. Reconnecting...")
                 websocket = await websockets.connect(uri)
                 
-                
-
 if __name__ == "__main__":
     
     #"C://Users//adamf//Desktop//data"
     
     while os.path.exists(path) == False:  
-        path = input("Enter the exact path to write files that OBS will read from (or press Enter to use the current directory): ").strip()
+        path = input("Enter the exact path to write files that OBS will read from: ").strip()
 
     print("Press ctrl-c to stop the program.")
     asyncio.get_event_loop().run_until_complete(receive_updates())

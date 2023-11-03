@@ -149,7 +149,7 @@
         padding: 5px 10px;
         border-radius: 5px;
         font-size: 20px;
-      }
+    }
 
     .timer span {
         color: #ff0000;
@@ -514,10 +514,10 @@
         var options = [];
         
         if (type === 'timeout') {
-            if (document.getElementById('team1-timeouts').innerHTML > 0) {
+            if (document.getElementById('team1-timeouts-text').innerHTML > 0) {
                 options.push(format(1));
             }
-            if (document.getElementById('team2-timeouts').innerHTML > 0) {
+            if (document.getElementById('team2-timeouts-text').innerHTML > 0) {
                 options.push(format(2));
             }
             options.push('Official');                                           
@@ -610,9 +610,9 @@
         // Check if element is undefined
         if (typeof element === "object") {
             if (element.id.includes("-")) {
-            var beforeWordIndex = element.id.indexOf("-");
-            side = element.id.substring(0, beforeWordIndex);
-            str = element.id.substring(beforeWordIndex + 1);
+                var beforeWordIndex = element.id.indexOf("-");
+                side = element.id.substring(0, beforeWordIndex);
+                str = element.id.substring(beforeWordIndex + 1);
             } else {
                 str = element.id;
             }            
@@ -694,7 +694,7 @@
             document.getElementById("settings-team2-name").innerHTML = team2.side;     
         } else {
             document.getElementById("team2-name").innerHTML = team2.name;
-            document.getElementById("settings-team2-name").innerHTML = team2.side;
+            document.getElementById("settings-team2-name").innerHTML = team2.name;
         }  
 
         // Update team points

@@ -167,7 +167,20 @@
         background-color: #f5f5f5;
         border: 1px solid #ddd;
         padding: 10px;
-        font-size: 70px;        
+        border-radius: 5px;
+        font-size: 70px; 
+        position: relative;       
+    }
+
+    .secondary-timer {
+        position: absolute;
+        border: 1px solid #ddd;
+        top: 5px; /* Adjust as needed */
+        right: 5px; /* Adjust as needed */
+        color: #ff0000;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 20px;
     }
 
     .timer span {
@@ -352,8 +365,9 @@
     </tbody>
     </table>
     <div class="timer">
-        <span id="gameclock-text">25:00</span>
-    </div>        
+        <span id="timer-text">25:00</span>
+        <div class="secondary-timer" id="secondary-timer" style="display: none;">0:00</div>
+    </div> 
     <div class="buttons">
         <button id="time-button" onclick="button(this)">TIMEOUT</button><br>
         <button id="point-button" onclick="button(this)">START POINT</button>
@@ -482,6 +496,19 @@
         updateServer(element);
     }
 
+    function miniature(val) {
+        const dynamicBox = document.querySelector('.secondary-timer');
+        if (val === 1) {
+            if (dynamicBox) {
+                dynamicBox.style.display = 'block'; // Show the existing dynamic box
+            }
+        } else {
+            if (dynamicBox) {
+                dynamicBox.style.display = 'none'; // Hide the existing dynamic box
+            }
+        }
+    }
+
     // Update the server when an action occurs 
     function updateServer(element) {
         var str = element;
@@ -503,7 +530,7 @@
         var xhr = new XMLHttpRequest();
         xhr.open("GET", `/updateServer?side=${side}&type=${str}&value=${value}`, true);    
         xhr.send();
-      }
+    }
 
     function update(e) {
         var response = JSON.parse(e.data);
@@ -564,24 +591,36 @@
         document.getElementById("team2-max-length").innerHTML = response.other.maximumLength;               
 
         // Update display
+        var gameClockMin = gameClock.minutes;
+        var gameClockSec = gameClock.seconds;
         var dispMinutes = gameClock.displayedMinutes;
         var dispSeconds = gameClock.displayedSeconds;
 
-        if (dispMinutes < 10) {
-            dispMinutes = "0" + String(dispMinutes);
+        if (dispMinutes == gameClockMin && dispSeconds == gameClockSec) {
+            miniature(0);
+        } else {
+            miniature(1);
+            var sec = gameClockSec < 10 ? "0" + gameClockSec : gameClockSec.toString();
+            document.getElementById('secondary-timer').innerHTML = gameClockMin + ":" + sec; 
         }
+
         if (dispSeconds < 10) {
             dispSeconds = "0" + String(dispSeconds);
         }
 
-        document.getElementById('gameclock-text').innerHTML = dispMinutes + ":" + dispSeconds;        
+        document.getElementById('timer-text').innerHTML = dispMinutes + ":" + dispSeconds;        
 
         // Update color
-        document.getElementById("gameclock-text").style.color = gameClock.color.hex;
+        if (gameClock.secondary) {
+            document.getElementById("timer-text").style.color = gameClock.secondaryColor.hex;
+            document.getElementById("secondary-timer").style.color = gameClock.color.hex;
+        } else {
+            document.getElementById("timer-text").style.color = gameClock.color.hex;
+        } 
         
         // Update buttons
         var text = gameClock.paused ? 'RESUME' : 'TIMEOUT';
-        if (gameClock.timeout) {
+        if (gameClock.secondary) {
             text = 'END TIMEOUT'
         }
         document.getElementById('time-button').innerHTML = text;
