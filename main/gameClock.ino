@@ -83,6 +83,12 @@ void GameClock::setDisplay(uint8_t num, uint8_t segment) {
         blue = color[2];
     }
 
+    if (segment == 3) {
+        if (clkMin < 10 || secMin < 0) {
+            num = 10;
+        }        
+    }
+
     for (uint8_t i = 0; i < 14; i++) {
         ((smallNums[num] & (1 << i)) == (1 << i)) ? 
         pixels.setPixelColor(i + startindex, pixels.Color(red, green, blue)) : 

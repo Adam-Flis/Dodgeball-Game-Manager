@@ -88,6 +88,10 @@ void ShotClock::setDisplay(uint8_t num, uint8_t segment) {
         break;  
     }
 
+    if (segment == 1 && convertNumber(cnt) < 10) {
+        num = 10;
+    }
+
     for (uint8_t i = 0; i < 21; i++){
         ((largeNums[num] & 1 << i) == 1 << i) ? 
         pixels.setPixelColor(i + startindex, pixels.Color(color[0] * brightness, color[1] * brightness, color[2] * brightness)) : 
